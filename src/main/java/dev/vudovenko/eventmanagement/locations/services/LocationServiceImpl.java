@@ -51,6 +51,9 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public void deleteLocation(Long id) {
-        throw new UnsupportedOperationException();
+        if (!locationRepository.existsById(id)) {
+            throw new LocationNotFoundException(id);
+        }
+        locationRepository.deleteById(id);
     }
 }

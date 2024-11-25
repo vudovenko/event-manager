@@ -5,6 +5,7 @@ import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
 import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,7 @@ public class LocationController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<LocationDto> getById(@PathVariable Long id) {
+    public ResponseEntity<LocationDto> getById(@NotNull @PathVariable Long id) {
         log.info("Get request for get location by id");
         LocationDto locationDto = locationDtoMapper.toDto(
                 locationService.getById(id)
@@ -65,7 +66,11 @@ public class LocationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLocation(@PathVariable Long id) {
         log.info("Get request for delete location");
-        throw new UnsupportedOperationException();
+        locationService.deleteLocation(id);
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 
     @PutMapping("/{id}")

@@ -20,8 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class LocationControllerTest extends AbstractTest {
@@ -104,6 +103,10 @@ class LocationControllerTest extends AbstractTest {
         Assertions.assertTrue(detailedMessage.contains("address:"));
         Assertions.assertTrue(detailedMessage.contains("capacity:"));
         Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
     }
 
     @Test
@@ -191,6 +194,52 @@ class LocationControllerTest extends AbstractTest {
         );
         Assertions.assertEquals(errorMessageResponse.detailedMessage(),
                 LocationNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId));
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @Test
+    void shouldSuccessfullyDeleteLocationById() throws Exception {
+        Location locationToDelete = locationService.createLocation(
+                new Location(
+                        null,
+                        "location-" + getRandomInt(),
+                        "address-" + getRandomInt(),
+                        100,
+                        "description"
+                )
+        );
+
+        mockMvc
+                .perform(delete("/locations/{id}", locationToDelete.getId()))
+                .andExpect(status().isNoContent());
+
+        Assertions.assertFalse(locationRepository.existsById(locationToDelete.getId()));
+    }
+
+    @Test
+    void shouldNotDeleteLocationByNonExistentId() throws Exception {
+        Long nonExistentLocationId = Long.MAX_VALUE;
+
+        String errorMessageResponseJson = mockMvc
+                .perform(delete("/locations/{id}", nonExistentLocationId))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage()
+        );
+        Assertions.assertEquals(errorMessageResponse.detailedMessage(),
+                LocationNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentLocationId));
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
                 errorMessageResponse.dateTime()
