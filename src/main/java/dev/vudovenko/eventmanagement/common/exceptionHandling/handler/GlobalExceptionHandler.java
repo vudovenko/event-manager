@@ -1,6 +1,6 @@
-package dev.vudovenko.eventmanagement.exceptionHandling.handler;
+package dev.vudovenko.eventmanagement.common.exceptionHandling.handler;
 
-import dev.vudovenko.eventmanagement.exceptionHandling.dto.ErrorMessageResponse;
+import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

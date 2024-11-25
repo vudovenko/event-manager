@@ -1,4 +1,4 @@
-package dev.vudovenko.eventmanagement.exceptionHandling.dto;
+package dev.vudovenko.eventmanagement.common.exceptionHandling.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
