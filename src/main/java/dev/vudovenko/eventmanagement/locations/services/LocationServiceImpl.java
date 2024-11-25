@@ -1,6 +1,9 @@
 package dev.vudovenko.eventmanagement.locations.services;
 
+import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
+import dev.vudovenko.eventmanagement.locations.entity.LocationEntity;
+import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LocationServiceImpl implements LocationService {
 
+    private final LocationRepository locationRepository;
+    private final EntityMapper<Location, LocationEntity> locationEntityMapper;
 
     @Override
     public List<Location> getAllLocations() {
@@ -24,7 +29,11 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public Location createLocation(Location location) {
-        throw new UnsupportedOperationException();
+        LocationEntity createdLocationEntity = locationRepository.save(
+                locationEntityMapper.toEntity(location)
+        );
+
+        return locationEntityMapper.toDomain(createdLocationEntity);
     }
 
     @Override

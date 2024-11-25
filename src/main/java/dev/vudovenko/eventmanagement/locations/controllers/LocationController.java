@@ -1,9 +1,14 @@
 package dev.vudovenko.eventmanagement.locations.controllers;
 
+import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
+import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
+import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +19,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/locations")
 public class LocationController {
+
+    private final LocationService locationService;
+
+    @Qualifier("locationDtoMapper")
+    private final DtoMapper<Location, LocationDto> locationDtoMapper;
 
     @GetMapping
     public ResponseEntity<List<LocationDto>> getAllLocations() {
@@ -33,7 +43,13 @@ public class LocationController {
             @Valid @RequestBody LocationDto locationDto
     ) {
         log.info("Get request for create location");
-        throw new UnsupportedOperationException();
+        Location location = locationService.createLocation(
+                locationDtoMapper.toDomain(locationDto)
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(locationDtoMapper.toDto(location));
     }
 
     @DeleteMapping("/{id}")
