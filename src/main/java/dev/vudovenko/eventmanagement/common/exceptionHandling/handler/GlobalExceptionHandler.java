@@ -1,6 +1,7 @@
 package dev.vudovenko.eventmanagement.common.exceptionHandling.handler;
 
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
+import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,21 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = LocationNotFoundException.class)
+    public ResponseEntity<ErrorMessageResponse> handleEntityNotFoundException(
+            RuntimeException e
+    ) {
+        log.error("Got exception", e);
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                "Entity not found",
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(errorDto);
     }
 }

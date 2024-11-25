@@ -1,14 +1,25 @@
 package dev.vudovenko.eventmanagement.locations.controllers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import dev.vudovenko.eventmanagement.AbstractTest;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
+import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
+import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
+import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
+import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.IntStream;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -16,9 +27,14 @@ class LocationControllerTest extends AbstractTest {
 
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private LocationRepository locationRepository;
+
+    @Autowired
+    private DtoMapper<Location, LocationDto> locationDtoMapper;
 
     @Test
-    void shouldSuccessCreateLocation() throws Exception {
+    void shouldSuccessfullyCreateLocation() throws Exception {
         LocationDto locationDtoToCreate = new LocationDto(
                 null,
                 "location-" + getRandomInt(),
@@ -84,5 +100,94 @@ class LocationControllerTest extends AbstractTest {
         Assertions.assertTrue(detailedMessage.contains("address:"));
         Assertions.assertTrue(detailedMessage.contains("capacity:"));
         Assertions.assertNotNull(errorMessageResponse.dateTime());
+    }
+
+    @Test
+    void shouldSuccessfullyGetAllLocations() throws Exception {
+        locationRepository.deleteAll();
+        Set<LocationDto> locationDtoSet = new HashSet<>();
+        IntStream.range(0, 10)
+                .forEach(i -> {
+                    Location location = locationService.createLocation(
+                            new Location(
+                                    null,
+                                    "location-" + getRandomInt(),
+                                    "address-" + getRandomInt(),
+                                    100,
+                                    "description"
+                            ));
+
+                    locationDtoSet.add(locationDtoMapper.toDto(location));
+                });
+
+        String locationsJson = mockMvc
+                .perform(get("/locations"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Set<LocationDto> locationDtoSetFromRequest = objectMapper.readValue(
+                locationsJson,
+                new TypeReference<>() {
+                }
+        );
+
+        Assertions.assertEquals(locationDtoSetFromRequest.size(), locationDtoSet.size());
+        locationDtoSetFromRequest
+                .forEach(locationDto -> Assertions.assertTrue(locationDtoSet.contains(locationDto)));
+    }
+
+    @Test
+    void shouldFindLocationById() throws Exception {
+        Location locationToFind = locationService.createLocation(
+                new Location(
+                        null,
+                        "location-" + getRandomInt(),
+                        "address-" + getRandomInt(),
+                        100,
+                        "description"
+                )
+        );
+
+        String foundLocationsJson = mockMvc
+                .perform(get("/locations/{id}", locationToFind.getId()))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Location foundLocation = locationDtoMapper.toDomain(
+                objectMapper.readValue(foundLocationsJson, LocationDto.class)
+        );
+
+        org.assertj.core.api.Assertions
+                .assertThat(foundLocation)
+                .usingRecursiveComparison()
+                .isEqualTo(locationToFind);
+    }
+
+    @Test
+    void shouldNotFindLocationByNonExistentId() throws Exception {
+        Long nonExistentId = Long.MAX_VALUE;
+
+        String errorMessageResponseJson = mockMvc
+                .perform(get("/locations/{id}", nonExistentId))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(errorMessageResponse.message(), "Entity not found");
+        Assertions.assertEquals(errorMessageResponse.detailedMessage(),
+                LocationNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId));
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
     }
 }

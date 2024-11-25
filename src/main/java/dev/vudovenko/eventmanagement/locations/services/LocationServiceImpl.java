@@ -3,6 +3,7 @@ package dev.vudovenko.eventmanagement.locations.services;
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.entity.LocationEntity;
+import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,19 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public List<Location> getAllLocations() {
-        throw new UnsupportedOperationException();
+        return locationRepository
+                .findAll()
+                .stream()
+                .map(locationEntityMapper::toDomain)
+                .toList();
     }
 
     @Override
     public Location getById(Long id) {
-        throw new UnsupportedOperationException();
+        LocationEntity locationEntity = locationRepository.findById(id)
+                .orElseThrow(() -> new LocationNotFoundException(id));
+
+        return locationEntityMapper.toDomain(locationEntity);
     }
 
     @Override

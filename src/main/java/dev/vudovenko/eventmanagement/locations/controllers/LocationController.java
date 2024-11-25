@@ -7,7 +7,6 @@ import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,20 +21,31 @@ public class LocationController {
 
     private final LocationService locationService;
 
-    @Qualifier("locationDtoMapper")
     private final DtoMapper<Location, LocationDto> locationDtoMapper;
 
     @GetMapping
     public ResponseEntity<List<LocationDto>> getAllLocations() {
         log.info("Get request for get all locations");
-        throw new UnsupportedOperationException();
+        List<LocationDto> allLocations = locationService
+                .getAllLocations()
+                .stream()
+                .map(locationDtoMapper::toDto)
+                .toList();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(allLocations);
     }
 
 
     @GetMapping("/{id}")
     public ResponseEntity<LocationDto> getById(@PathVariable Long id) {
         log.info("Get request for get location by id");
-        throw new UnsupportedOperationException();
+        LocationDto locationDto = locationDtoMapper.toDto(
+                locationService.getById(id)
+        );
+
+        return ResponseEntity.ok(locationDto);
     }
 
     @PostMapping
