@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: event-manager
+  datasource:
+    url: jdbc:postgresql://localhost:${test.postgres.port}/postgres
+    username: postgres
+    password: root
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8085
+  error:
+    include-message: always
+
+logging:
+  level:
+    dev.vudovenko.eventmanagement: info
+    org:
+      springframework: info
+      hibernate:
+        orm:
+          jdbc:
+            bind: trace
+            extract: trace
+        type:
+          descriptor:
+            sql: trace
+  pattern:
+    console: "%C{1.} [%-5level] %d{yyyy-MM-dd HH:mm:ss} [%t] - %msg%n"
+
+springdoc:
+  swagger-ui:
+    url: /event-manager-openapi.yaml

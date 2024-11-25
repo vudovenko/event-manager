@@ -21,7 +21,9 @@ public class GlobalExceptionHandler {
         log.error("Server error", e);
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
                 "Server error",
-                e.getMessage()
+                e.getMessage() != null
+                        ? e.getMessage()
+                        : "Unknown error"
         );
 
         return ResponseEntity
