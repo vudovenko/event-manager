@@ -1,6 +1,7 @@
 package dev.vudovenko.eventmanagement.common.exceptionHandling.handler;
 
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
+import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessageResponse> handleGenericException(
             Exception e
     ) {
-        log.error("Server error", e);
+        log.error("Got server error", e);
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
-                "Server error",
+                ExceptionHandlerMessages.SERVER_ERROR.getMessage(),
                 e.getMessage() != null
                         ? e.getMessage()
                         : "Unknown error"
@@ -45,7 +46,7 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
-                "Request validation failed",
+                ExceptionHandlerMessages.VALIDATION_FAILED.getMessage(),
                 detailedMessage
         );
 
@@ -60,7 +61,7 @@ public class GlobalExceptionHandler {
     ) {
         log.error("Got exception", e);
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
-                "Entity not found",
+                ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage(),
                 e.getMessage()
         );
 

@@ -3,6 +3,7 @@ package dev.vudovenko.eventmanagement.locations.controllers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import dev.vudovenko.eventmanagement.AbstractTest;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
+import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
 import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
@@ -94,7 +95,10 @@ class LocationControllerTest extends AbstractTest {
 
         String detailedMessage = errorMessageResponse.detailedMessage();
 
-        Assertions.assertEquals(errorMessageResponse.message(), "Request validation failed");
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.VALIDATION_FAILED.getMessage()
+        );
         Assertions.assertTrue(detailedMessage.contains("id:"));
         Assertions.assertTrue(detailedMessage.contains("name:"));
         Assertions.assertTrue(detailedMessage.contains("address:"));
@@ -139,7 +143,7 @@ class LocationControllerTest extends AbstractTest {
     }
 
     @Test
-    void shouldFindLocationById() throws Exception {
+    void shouldSuccessfullyFindLocationById() throws Exception {
         Location locationToFind = locationService.createLocation(
                 new Location(
                         null,
@@ -181,7 +185,10 @@ class LocationControllerTest extends AbstractTest {
         ErrorMessageResponse errorMessageResponse = objectMapper
                 .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
 
-        Assertions.assertEquals(errorMessageResponse.message(), "Entity not found");
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage()
+        );
         Assertions.assertEquals(errorMessageResponse.detailedMessage(),
                 LocationNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId));
         Assertions.assertNotNull(errorMessageResponse.dateTime());
