@@ -79,6 +79,13 @@ public class LocationController {
             @Valid @RequestBody LocationDto locationDto
     ) {
         log.info("Get request for update location");
-        throw new UnsupportedOperationException();
+        Location location = locationService.updateLocation(
+                id,
+                locationDtoMapper.toDomain(locationDto)
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(locationDtoMapper.toDto(location));
     }
 }

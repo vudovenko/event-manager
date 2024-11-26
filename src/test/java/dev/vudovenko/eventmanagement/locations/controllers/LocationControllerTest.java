@@ -7,6 +7,7 @@ import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.
 import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
+import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowerThanItWasException;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
@@ -68,13 +69,7 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldNotCreateLocationWhenRequestNotValid() throws Exception {
-        LocationDto wrongLocationDto = new LocationDto(
-                Long.MAX_VALUE,
-                "",
-                "   ",
-                4,
-                null
-        );
+        LocationDto wrongLocationDto = getWrongLocationDto();
 
         String wrongLocationDtoJson = objectMapper.writeValueAsString(wrongLocationDto);
 
@@ -115,14 +110,7 @@ class LocationControllerTest extends AbstractTest {
         Set<LocationDto> locationDtoSet = new HashSet<>();
         IntStream.range(0, 10)
                 .forEach(i -> {
-                    Location location = locationService.createLocation(
-                            new Location(
-                                    null,
-                                    "location-" + getRandomInt(),
-                                    "address-" + getRandomInt(),
-                                    100,
-                                    "description"
-                            ));
+                    Location location = getCreatedLocation();
 
                     locationDtoSet.add(locationDtoMapper.toDto(location));
                 });
@@ -147,15 +135,7 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldSuccessfullyFindLocationById() throws Exception {
-        Location locationToFind = locationService.createLocation(
-                new Location(
-                        null,
-                        "location-" + getRandomInt(),
-                        "address-" + getRandomInt(),
-                        100,
-                        "description"
-                )
-        );
+        Location locationToFind = getCreatedLocation();
 
         String foundLocationsJson = mockMvc
                 .perform(get("/locations/{id}", locationToFind.getId()))
@@ -203,15 +183,7 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldSuccessfullyDeleteLocationById() throws Exception {
-        Location locationToDelete = locationService.createLocation(
-                new Location(
-                        null,
-                        "location-" + getRandomInt(),
-                        "address-" + getRandomInt(),
-                        100,
-                        "description"
-                )
-        );
+        Location locationToDelete = getCreatedLocation();
 
         mockMvc
                 .perform(delete("/locations/{id}", locationToDelete.getId()))
@@ -244,6 +216,199 @@ class LocationControllerTest extends AbstractTest {
         Assertions.assertTrue(
                 errorMessageResponse.dateTime()
                         .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @Test
+    void shouldSuccessfullyUpdateLocation() throws Exception {
+        Location createdLocation = getCreatedLocation();
+
+        LocationDto locationDtoToUpdate = new LocationDto(
+                null,
+                "updated-" + createdLocation.getName(),
+                "updated-" + createdLocation.getAddress(),
+                createdLocation.getCapacity() + 100,
+                "updated-" + createdLocation.getDescription()
+        );
+
+        String locationDtoToUpdateJson = objectMapper.writeValueAsString(locationDtoToUpdate);
+
+        String updatedLocationDtoJson = mockMvc
+                .perform(
+                        put("/locations/{id}", createdLocation.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(locationDtoToUpdateJson)
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Location updatedLocation = locationDtoMapper.toDomain(
+                objectMapper.readValue(updatedLocationDtoJson, LocationDto.class)
+        );
+
+        Assertions.assertEquals(updatedLocation.getId(), createdLocation.getId());
+        org.assertj.core.api.Assertions
+                .assertThat(updatedLocation)
+                .usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(locationDtoMapper.toDomain(locationDtoToUpdate));
+    }
+
+    @Test
+    void shouldNotUpdateLocationWithNonExistentId() throws Exception {
+        Location createdLocation = getCreatedLocation();
+
+        Long nonExistentLocationId = Long.MAX_VALUE;
+        LocationDto invalidLocationDtoToUpdate = new LocationDto(
+                null,
+                "invalid-" + createdLocation.getName(),
+                "invalid-" + createdLocation.getAddress(),
+                createdLocation.getCapacity() + 1000,
+                "invalid-" + createdLocation.getDescription()
+        );
+
+        String invalidLocationDtoToUpdateJson = objectMapper.writeValueAsString(invalidLocationDtoToUpdate);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/locations/{id}", nonExistentLocationId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(invalidLocationDtoToUpdateJson)
+                )
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(errorMessageResponse.message(),
+                ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage());
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                LocationNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentLocationId)
+        );
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @Test
+    void shouldNotUpdateLocationWhenRequestIsInvalid() throws Exception {
+        Location createdLocation = getCreatedLocation();
+
+        LocationDto invalidLocationDtoToUpdate = getWrongLocationDto();
+
+        String invalidLocationDtoToUpdateJson = objectMapper.writeValueAsString(invalidLocationDtoToUpdate);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/locations/{id}", createdLocation.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(invalidLocationDtoToUpdateJson)
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        String detailedMessage = errorMessageResponse.detailedMessage();
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.VALIDATION_FAILED.getMessage()
+        );
+        Assertions.assertTrue(detailedMessage.contains("id:"));
+        Assertions.assertTrue(detailedMessage.contains("name:"));
+        Assertions.assertTrue(detailedMessage.contains("address:"));
+        Assertions.assertTrue(detailedMessage.contains("capacity:"));
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @Test
+    void shouldNotUpdateLocationWhenCapacityLowerThanItWas() throws Exception {
+        Location createdLocation = locationService.createLocation(
+                new Location(
+                        null,
+                        "location-" + getRandomInt(),
+                        "address-" + getRandomInt(),
+                        100,
+                        "description"
+                )
+        );
+
+        LocationDto locationDtoToUpdate = new LocationDto(
+                null,
+                "updated-" + createdLocation.getName(),
+                "updated-" + createdLocation.getAddress(),
+                99,
+                "updated-" + createdLocation.getDescription()
+        );
+
+        String locationDtoToUpdateJson = objectMapper.writeValueAsString(locationDtoToUpdate);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/locations/{id}", createdLocation.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(locationDtoToUpdateJson)
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(errorMessageResponse.message(),
+                ExceptionHandlerMessages.LOCATION_CAPACITY_IS_LOWER_THAN_IT_WAS.getMessage());
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                LocationCapacityIsLowerThanItWasException
+                        .MESSAGE_TEMPLATE.formatted(
+                                createdLocation.getCapacity(),
+                                locationDtoToUpdate.capacity()
+                        )
+        );
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    private Location getCreatedLocation() {
+        return locationService.createLocation(
+                new Location(
+                        null,
+                        "location-" + getRandomInt(),
+                        "address-" + getRandomInt(),
+                        100,
+                        "description"
+                )
+        );
+    }
+
+    private LocationDto getWrongLocationDto() {
+        return new LocationDto(
+                Long.MAX_VALUE,
+                null,
+                "   ",
+                1,
+                null
         );
     }
 }

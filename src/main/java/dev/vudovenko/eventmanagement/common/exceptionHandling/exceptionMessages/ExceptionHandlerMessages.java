@@ -7,7 +7,8 @@ public enum ExceptionHandlerMessages {
 
     ENTITY_NOT_FOUND("Entity not found"),
     VALIDATION_FAILED("Request validation failed"),
-    SERVER_ERROR("Server error");
+    SERVER_ERROR("Server error"),
+    LOCATION_CAPACITY_IS_LOWER_THAN_IT_WAS("Location capacity is lower than it was");
 
     private final String message;
 

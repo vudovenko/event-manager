@@ -2,6 +2,7 @@ package dev.vudovenko.eventmanagement.common.exceptionHandling.handler;
 
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
+import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowerThanItWasException;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessageResponse> handleEntityNotFoundException(
             RuntimeException e
     ) {
-        log.error("Got exception", e);
+        log.error("Got entity not found exception", e);
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
                 ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage(),
                 e.getMessage()
@@ -67,6 +68,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = LocationCapacityIsLowerThanItWasException.class)
+    public ResponseEntity<ErrorMessageResponse>
+    handleLocationCapacityIsLowerThanItWasException(
+            LocationCapacityIsLowerThanItWasException e
+    ) {
+        log.error("Got location capacity is lower than it was exception", e);
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.LOCATION_CAPACITY_IS_LOWER_THAN_IT_WAS.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(errorDto);
     }
 }
