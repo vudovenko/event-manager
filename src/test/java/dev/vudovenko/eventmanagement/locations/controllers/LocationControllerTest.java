@@ -185,11 +185,21 @@ class LocationControllerTest extends AbstractTest {
     void shouldSuccessfullyDeleteLocationById() throws Exception {
         Location locationToDelete = getCreatedLocation();
 
-        mockMvc
+        String deletedLocationJson = mockMvc
                 .perform(delete("/locations/{id}", locationToDelete.getId()))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        LocationDto deletedLocationDto = objectMapper.readValue(deletedLocationJson, LocationDto.class);
 
         Assertions.assertFalse(locationRepository.existsById(locationToDelete.getId()));
+
+        org.assertj.core.api.Assertions
+                .assertThat(locationDtoMapper.toDomain(deletedLocationDto))
+                .usingRecursiveComparison()
+                .isEqualTo(locationToDelete);
     }
 
     @Test

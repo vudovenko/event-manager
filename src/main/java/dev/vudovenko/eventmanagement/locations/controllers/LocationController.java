@@ -62,15 +62,17 @@ public class LocationController {
     }
 
     @DeleteMapping("/{locationId}")
-    public ResponseEntity<Void> deleteLocation(
+    public ResponseEntity<LocationDto> deleteLocation(
             @PathVariable("locationId") Long locationId
     ) {
         log.info("Get request for delete location");
-        locationService.deleteLocation(locationId);
+        LocationDto locationDto = locationDtoMapper.toDto(
+                locationService.deleteLocation(locationId)
+        );
 
         return ResponseEntity
-                .noContent()
-                .build();
+                .status(HttpStatus.NO_CONTENT)
+                .body(locationDto);
     }
 
     @PutMapping("/{locationId}")
