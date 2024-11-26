@@ -1,4 +1,4 @@
-package dev.vudovenko.eventmanagement.locations.services.impl;
+package dev.vudovenko.eventmanagement.locations.services;
 
 import dev.vudovenko.eventmanagement.locations.domain.Location;
 

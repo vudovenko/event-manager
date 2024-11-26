@@ -10,7 +10,7 @@ import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowerThanItWasException;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
-import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
+import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

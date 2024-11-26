@@ -1,4 +1,4 @@
-package dev.vudovenko.eventmanagement.locations.services;
+package dev.vudovenko.eventmanagement.locations.services.impl;
 
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
@@ -6,7 +6,7 @@ import dev.vudovenko.eventmanagement.locations.entity.LocationEntity;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowerThanItWasException;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
-import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
+import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -3,7 +3,7 @@ package dev.vudovenko.eventmanagement.locations.controllers;
 import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
-import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
+import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -34,7 +34,6 @@ public class LocationController {
 
         return ResponseEntity.ok(allLocations);
     }
-
 
     @GetMapping("/{locationId}")
     public ResponseEntity<LocationDto> getById(
