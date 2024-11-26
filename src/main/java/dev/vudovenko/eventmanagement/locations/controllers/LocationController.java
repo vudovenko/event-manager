@@ -5,7 +5,6 @@ import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
 import dev.vudovenko.eventmanagement.locations.services.impl.LocationService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -33,17 +32,17 @@ public class LocationController {
                 .map(locationDtoMapper::toDto)
                 .toList();
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(allLocations);
+        return ResponseEntity.ok(allLocations);
     }
 
 
-    @GetMapping("/{id}")
-    public ResponseEntity<LocationDto> getById(@NotNull @PathVariable Long id) {
+    @GetMapping("/{locationId}")
+    public ResponseEntity<LocationDto> getById(
+            @PathVariable("locationId") Long locationId
+    ) {
         log.info("Get request for get location by id");
         LocationDto locationDto = locationDtoMapper.toDto(
-                locationService.getById(id)
+                locationService.getById(locationId)
         );
 
         return ResponseEntity.ok(locationDto);
@@ -63,29 +62,29 @@ public class LocationController {
                 .body(locationDtoMapper.toDto(location));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLocation(@PathVariable Long id) {
+    @DeleteMapping("/{locationId}")
+    public ResponseEntity<Void> deleteLocation(
+            @PathVariable("locationId") Long locationId
+    ) {
         log.info("Get request for delete location");
-        locationService.deleteLocation(id);
+        locationService.deleteLocation(locationId);
 
         return ResponseEntity
                 .noContent()
                 .build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{locationId}")
     public ResponseEntity<LocationDto> updateLocation(
-            @PathVariable Long id,
+            @PathVariable("locationId") Long locationId,
             @Valid @RequestBody LocationDto locationDto
     ) {
         log.info("Get request for update location");
         Location location = locationService.updateLocation(
-                id,
+                locationId,
                 locationDtoMapper.toDomain(locationDto)
         );
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(locationDtoMapper.toDto(location));
+        return ResponseEntity.ok(locationDtoMapper.toDto(location));
     }
 }
