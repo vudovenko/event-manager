@@ -1,10 +1,10 @@
-package dev.vudovenko.eventmanagement.common.users.dto;
+package dev.vudovenko.eventmanagement.users.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record UserDto(
+public record SignUpRequest(
 
 
         @NotBlank

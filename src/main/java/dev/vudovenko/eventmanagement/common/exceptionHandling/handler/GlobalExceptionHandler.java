@@ -2,11 +2,13 @@ package dev.vudovenko.eventmanagement.common.exceptionHandling.handler;
 
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
+import dev.vudovenko.eventmanagement.users.exceptions.LoginAlreadyTakenException;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowerThanItWasException;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -79,6 +81,36 @@ public class GlobalExceptionHandler {
         log.error("Got location capacity is lower than it was exception", e);
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
                 ExceptionHandlerMessages.LOCATION_CAPACITY_IS_LOWER_THAN_IT_WAS.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = UsernameNotFoundException.class)
+    public ResponseEntity<ErrorMessageResponse> handleUsernameNotFoundException(
+            UsernameNotFoundException e
+    ) {
+        log.error("Got username not found exception", e);
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.USERNAME_NOT_FOUND.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = LoginAlreadyTakenException.class)
+    public ResponseEntity<ErrorMessageResponse> handleLoginAlreadyTakenException(
+            LoginAlreadyTakenException e
+    ) {
+        log.error("Got login already taken exception", e);
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.LOGIN_ALREADY_TAKEN.getMessage(),
                 e.getMessage()
         );
 

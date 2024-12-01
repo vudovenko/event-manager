@@ -1,6 +1,6 @@
-package dev.vudovenko.eventmanagement.common.users.entity;
+package dev.vudovenko.eventmanagement.users.entity;
 
-import dev.vudovenko.eventmanagement.common.users.userRoles.UserRole;
+import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,6 +23,9 @@ public class UserEntity {
 
     @Column(name = "password", nullable = false)
     private String passwordHash;
+
+    @Column(name = "age", nullable = false)
+    private Integer age;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

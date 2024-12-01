@@ -1,6 +1,6 @@
-package dev.vudovenko.eventmanagement.common.users.domain;
+package dev.vudovenko.eventmanagement.users.domain;
 
-import dev.vudovenko.eventmanagement.common.users.userRoles.UserRole;
+import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import lombok.*;
 
 @Getter
@@ -14,5 +14,6 @@ public class User {
     private Long id;
     private String login;
     private String passwordHash;
+    private Integer age;
     private UserRole role;
 }
