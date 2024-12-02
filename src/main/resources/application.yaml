@@ -37,3 +37,7 @@ logging:
 springdoc:
   swagger-ui:
     url: /event-manager-openapi.yaml
+
+jwt:
+  secret-key: FEB29EE4F3B7CB24E421C81E119CFE2DD38FEC0CE212E4688A309C4C15A60145
+  lifetime: 86400000

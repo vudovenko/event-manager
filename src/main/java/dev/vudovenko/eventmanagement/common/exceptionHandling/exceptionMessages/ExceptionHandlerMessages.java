@@ -10,7 +10,9 @@ public enum ExceptionHandlerMessages {
     SERVER_ERROR("Server error"),
     LOCATION_CAPACITY_IS_LOWER_THAN_IT_WAS("Location capacity is lower than it was"),
     USERNAME_NOT_FOUND("User not found"),
-    LOGIN_ALREADY_TAKEN("Login already taken");
+    LOGIN_ALREADY_TAKEN("Login already taken"),
+    FAILED_TO_AUTHENTICATE("Failed to authenticate"),
+    FORBIDDEN("Forbidden");
 
 
     private final String message;

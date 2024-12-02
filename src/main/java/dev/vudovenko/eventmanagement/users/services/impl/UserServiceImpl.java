@@ -9,6 +9,7 @@ import dev.vudovenko.eventmanagement.users.repositories.UserRepository;
 import dev.vudovenko.eventmanagement.users.services.UserService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final EntityMapper<User, UserEntity> userEntityMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User registerUser(SignUpRequest signUpRequest) {
@@ -24,11 +26,13 @@ public class UserServiceImpl implements UserService {
             throw new LoginAlreadyTakenException(signUpRequest.login());
         }
 
+        String hashedPassword = passwordEncoder.encode(signUpRequest.password());
+
         UserEntity userToSave = userRepository.save(
                 new UserEntity(
                         null,
                         signUpRequest.login(),
-                        signUpRequest.password(),
+                        hashedPassword,
                         signUpRequest.age(),
                         UserRole.USER
                 )

@@ -1,7 +1,10 @@
 package dev.vudovenko.eventmanagement.users.controllers;
 
 import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
+import dev.vudovenko.eventmanagement.security.jwt.JwtAuthenticationService;
+import dev.vudovenko.eventmanagement.security.jwt.dto.JwtTokenResponse;
 import dev.vudovenko.eventmanagement.users.domain.User;
+import dev.vudovenko.eventmanagement.users.dto.SignInRequest;
 import dev.vudovenko.eventmanagement.users.dto.SignUpRequest;
 import dev.vudovenko.eventmanagement.users.dto.UserDto;
 import dev.vudovenko.eventmanagement.users.services.UserService;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final JwtAuthenticationService jwtAuthenticationService;
     private final DtoMapper<User, UserDto> userDtoMapper;
 
     @PostMapping
@@ -33,5 +37,15 @@ public class UserController {
         return ResponseEntity
                 .status(201)
                 .body(userDtoMapper.toDto(user));
+    }
+
+    @PostMapping("/auth")
+    public ResponseEntity<JwtTokenResponse> authenticate(
+            @Valid @RequestBody SignInRequest sigInRequest
+    ) {
+        log.info("Get request for sign-in: login={}", sigInRequest.login());
+        String token = jwtAuthenticationService.authenticateUser(sigInRequest);
+
+        return ResponseEntity.ok(new JwtTokenResponse(token));
     }
 }
