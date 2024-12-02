@@ -14,6 +14,8 @@ import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -138,8 +140,9 @@ class LocationControllerTest extends AbstractTest {
         );
     }
 
-    @Test
-    void shouldSuccessfullyGetAllLocations() throws Exception {
+    @ParameterizedTest
+    @MethodSource("rolesProvider")
+    void shouldSuccessfullyGetAllLocations(UserRole userRole) throws Exception {
         locationRepository.deleteAll();
         Set<LocationDto> locationDtoSet = new HashSet<>();
         IntStream.range(0, 10)
@@ -152,7 +155,7 @@ class LocationControllerTest extends AbstractTest {
         String locationsJson = mockMvc
                 .perform(
                         get("/locations")
-                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(userRole))
                 )
                 .andExpect(status().isOk())
                 .andReturn()
@@ -170,17 +173,6 @@ class LocationControllerTest extends AbstractTest {
                 .forEach(locationDto -> Assertions.assertTrue(locationDtoSet.contains(locationDto)));
     }
 
-    @WithMockUser(authorities = "USER")
-    @Test
-    void shouldSuccessfullyGetAllLocationsWithRoleUser() throws Exception {
-        mockMvc
-                .perform(get("/locations"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-    }
-
     @Test
     void shouldReturnUnauthorizedWhenGetAllLocationsWithoutAuthorization() throws Exception {
         mockMvc
@@ -191,14 +183,15 @@ class LocationControllerTest extends AbstractTest {
                 .getContentAsString();
     }
 
-    @Test
-    void shouldSuccessfullyFindLocationById() throws Exception {
+    @ParameterizedTest
+    @MethodSource("rolesProvider")
+    void shouldSuccessfullyFindLocationById(UserRole userRole) throws Exception {
         Location locationToFind = getCreatedLocation();
 
         String foundLocationsJson = mockMvc
                 .perform(
                         get("/locations/{id}", locationToFind.getId())
-                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(userRole))
                 )
                 .andExpect(status().isOk())
                 .andReturn()
@@ -215,19 +208,6 @@ class LocationControllerTest extends AbstractTest {
                 .isEqualTo(locationToFind);
     }
 
-    @WithMockUser(authorities = "USER")
-    @Test
-    void shouldSuccessfullyFindLocationByIdWithRoleUser() throws Exception {
-        Location locationToFind = getCreatedLocation();
-
-        mockMvc
-                .perform(get("/locations/{id}", locationToFind.getId()))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-    }
-
     @Test
     void shouldReturnUnauthorizedWhenFindLocationByIdWithoutAuthorization() throws Exception {
         mockMvc
@@ -238,14 +218,15 @@ class LocationControllerTest extends AbstractTest {
                 .getContentAsString();
     }
 
-    @Test
-    void shouldNotFindLocationByNonExistentId() throws Exception {
+    @ParameterizedTest
+    @MethodSource("rolesProvider")
+    void shouldNotFindLocationByNonExistentId(UserRole userRole) throws Exception {
         Long nonExistentId = Long.MAX_VALUE;
 
         String errorMessageResponseJson = mockMvc
                 .perform(
                         get("/locations/{id}", nonExistentId)
-                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN)))
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(userRole)))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()

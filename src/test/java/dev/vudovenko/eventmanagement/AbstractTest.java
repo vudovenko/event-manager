@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.security.SecureRandom;
+import java.util.stream.Stream;
 
 @Log4j2
 @AutoConfigureMockMvc
@@ -62,5 +63,9 @@ public class AbstractTest {
 
     public String getAuthorizationHeader(UserRole role) {
         return "Bearer " + userTestUtils.getJwtTokenWithRole(role);
+    }
+
+    public static Stream<UserRole> rolesProvider() {
+        return Stream.of(UserRole.ADMIN, UserRole.USER);
     }
 }
