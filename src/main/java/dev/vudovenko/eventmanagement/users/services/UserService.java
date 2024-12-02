@@ -6,4 +6,6 @@ import dev.vudovenko.eventmanagement.users.dto.SignUpRequest;
 public interface UserService {
 
     User registerUser(SignUpRequest signUpRequest);
+
+    User findByLogin(String login);
 }

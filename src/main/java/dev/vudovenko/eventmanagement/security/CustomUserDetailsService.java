@@ -1,9 +1,8 @@
 package dev.vudovenko.eventmanagement.security;
 
-import dev.vudovenko.eventmanagement.users.entity.UserEntity;
-import dev.vudovenko.eventmanagement.users.repositories.UserRepository;
+import dev.vudovenko.eventmanagement.users.domain.User;
+import dev.vudovenko.eventmanagement.users.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,16 +12,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String login)
             throws UsernameNotFoundException {
 
-        UserEntity user = userRepository.findByLogin(login)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.findByLogin(login);
 
-        return User.withUsername(login)
+        return org.springframework.security.core.userdetails.User
+                .withUsername(login)
                 .password(user.getPasswordHash())
                 .authorities(user.getRole().toString())
                 .build();

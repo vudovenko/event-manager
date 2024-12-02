@@ -9,6 +9,7 @@ import dev.vudovenko.eventmanagement.users.repositories.UserRepository;
 import dev.vudovenko.eventmanagement.users.services.UserService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,5 +40,13 @@ public class UserServiceImpl implements UserService {
         );
 
         return userEntityMapper.toDomain(userToSave);
+    }
+
+    @Override
+    public User findByLogin(String login) {
+        UserEntity user = userRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return userEntityMapper.toDomain(user);
     }
 }
