@@ -82,10 +82,7 @@ class LocationControllerTest extends AbstractTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{}")
                 )
-                .andExpect(status().isForbidden())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -96,10 +93,7 @@ class LocationControllerTest extends AbstractTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{}")
                 )
-                .andExpect(status().isUnauthorized())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -177,10 +171,7 @@ class LocationControllerTest extends AbstractTest {
     void shouldReturnUnauthorizedWhenGetAllLocationsWithoutAuthorization() throws Exception {
         mockMvc
                 .perform(get("/locations"))
-                .andExpect(status().isUnauthorized())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isUnauthorized());
     }
 
     @ParameterizedTest
@@ -212,10 +203,7 @@ class LocationControllerTest extends AbstractTest {
     void shouldReturnUnauthorizedWhenFindLocationByIdWithoutAuthorization() throws Exception {
         mockMvc
                 .perform(get("/locations/{id}", 1L))
-                .andExpect(status().isUnauthorized())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isUnauthorized());
     }
 
     @ParameterizedTest
@@ -276,20 +264,14 @@ class LocationControllerTest extends AbstractTest {
     void shouldReturnForbiddenWhenUserDeleteLocationById() throws Exception {
         mockMvc
                 .perform(delete("/locations/{id}", 1L))
-                .andExpect(status().isForbidden())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void shouldReturnUnauthorizedWhenDeleteLocationByIdWithoutAuthorization() throws Exception {
         mockMvc
                 .perform(delete("/locations/{id}", 1L))
-                .andExpect(status().isUnauthorized())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -368,10 +350,7 @@ class LocationControllerTest extends AbstractTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{}")
                 )
-                .andExpect(status().isForbidden())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -382,10 +361,7 @@ class LocationControllerTest extends AbstractTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{}")
                 )
-                .andExpect(status().isUnauthorized())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

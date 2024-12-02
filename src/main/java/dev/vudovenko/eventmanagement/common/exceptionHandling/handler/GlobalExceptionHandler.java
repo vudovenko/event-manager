@@ -5,6 +5,7 @@ import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowerThanItWasException;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import dev.vudovenko.eventmanagement.users.exceptions.LoginAlreadyTakenException;
+import dev.vudovenko.eventmanagement.users.exceptions.UserIdNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -98,6 +99,21 @@ public class GlobalExceptionHandler {
         log.error("Got username not found exception", e);
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
                 ExceptionHandlerMessages.USERNAME_NOT_FOUND.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = UserIdNotFoundException.class)
+    public ResponseEntity<ErrorMessageResponse> handleUserIdNotFoundException(
+            UserIdNotFoundException e
+    ) {
+        log.error("Got user id not found exception", e);
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.USER_ID_NOT_FOUND.getMessage(),
                 e.getMessage()
         );
 

@@ -5,6 +5,7 @@ import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.dto.UserRegistration;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
 import dev.vudovenko.eventmanagement.users.exceptions.LoginAlreadyTakenException;
+import dev.vudovenko.eventmanagement.users.exceptions.UserIdNotFoundException;
 import dev.vudovenko.eventmanagement.users.repositories.UserRepository;
 import dev.vudovenko.eventmanagement.users.services.UserService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
@@ -44,9 +45,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByLogin(String login) {
-        UserEntity user = userRepository.findByLogin(login)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        UserEntity userEntity = userRepository.findByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User with login %s not found".formatted(login)));
 
-        return userEntityMapper.toDomain(user);
+        return userEntityMapper.toDomain(userEntity);
+    }
+
+    @Override
+    public User findById(Long userId) {
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new UserIdNotFoundException(userId));
+
+        return userEntityMapper.toDomain(userEntity);
     }
 }

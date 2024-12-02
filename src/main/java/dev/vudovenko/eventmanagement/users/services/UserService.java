@@ -8,4 +8,6 @@ public interface UserService {
     User registerUser(UserRegistration userRegistration);
 
     User findByLogin(String login);
+
+    User findById(Long id);
 }
