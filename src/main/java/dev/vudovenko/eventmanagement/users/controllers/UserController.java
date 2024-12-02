@@ -4,8 +4,8 @@ import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
 import dev.vudovenko.eventmanagement.security.jwt.JwtAuthenticationService;
 import dev.vudovenko.eventmanagement.security.jwt.dto.JwtTokenResponse;
 import dev.vudovenko.eventmanagement.users.domain.User;
-import dev.vudovenko.eventmanagement.users.dto.SignInRequest;
-import dev.vudovenko.eventmanagement.users.dto.SignUpRequest;
+import dev.vudovenko.eventmanagement.users.dto.UserCredentials;
+import dev.vudovenko.eventmanagement.users.dto.UserRegistration;
 import dev.vudovenko.eventmanagement.users.dto.UserDto;
 import dev.vudovenko.eventmanagement.users.services.UserService;
 import jakarta.validation.Valid;
@@ -29,10 +29,10 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserDto> createUser(
-            @Valid @RequestBody SignUpRequest signUpRequest
+            @Valid @RequestBody UserRegistration userRegistration
     ) {
-        log.info("Get request for sign-up: login={}", signUpRequest.login());
-        User user = userService.registerUser(signUpRequest);
+        log.info("Get request for sign-up: login={}", userRegistration.login());
+        User user = userService.registerUser(userRegistration);
 
         return ResponseEntity
                 .status(201)
@@ -41,10 +41,10 @@ public class UserController {
 
     @PostMapping("/auth")
     public ResponseEntity<JwtTokenResponse> authenticate(
-            @Valid @RequestBody SignInRequest sigInRequest
+            @Valid @RequestBody UserCredentials userCredentials
     ) {
-        log.info("Get request for sign-in: login={}", sigInRequest.login());
-        String token = jwtAuthenticationService.authenticateUser(sigInRequest);
+        log.info("Get request for sign-in: login={}", userCredentials.login());
+        String token = jwtAuthenticationService.authenticateUser(userCredentials);
 
         return ResponseEntity.ok(new JwtTokenResponse(token));
     }

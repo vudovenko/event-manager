@@ -2,7 +2,7 @@ package dev.vudovenko.eventmanagement.users.services.impl;
 
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.users.domain.User;
-import dev.vudovenko.eventmanagement.users.dto.SignUpRequest;
+import dev.vudovenko.eventmanagement.users.dto.UserRegistration;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
 import dev.vudovenko.eventmanagement.users.exceptions.LoginAlreadyTakenException;
 import dev.vudovenko.eventmanagement.users.repositories.UserRepository;
@@ -22,19 +22,19 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User registerUser(SignUpRequest signUpRequest) {
-        if (userRepository.existsByLogin(signUpRequest.login())) {
-            throw new LoginAlreadyTakenException(signUpRequest.login());
+    public User registerUser(UserRegistration userRegistration) {
+        if (userRepository.existsByLogin(userRegistration.login())) {
+            throw new LoginAlreadyTakenException(userRegistration.login());
         }
 
-        String hashedPassword = passwordEncoder.encode(signUpRequest.password());
+        String hashedPassword = passwordEncoder.encode(userRegistration.password());
 
         UserEntity userToSave = userRepository.save(
                 new UserEntity(
                         null,
-                        signUpRequest.login(),
+                        userRegistration.login(),
                         hashedPassword,
-                        signUpRequest.age(),
+                        userRegistration.age(),
                         UserRole.USER
                 )
         );

@@ -1,6 +1,6 @@
 package dev.vudovenko.eventmanagement.security.jwt;
 
-import dev.vudovenko.eventmanagement.users.dto.SignInRequest;
+import dev.vudovenko.eventmanagement.users.dto.UserCredentials;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,13 +13,13 @@ public class JwtAuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenManager jwtTokenManager;
 
-    public String authenticateUser(SignInRequest sigInRequest) {
+    public String authenticateUser(UserCredentials userCredentials) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        sigInRequest.login(),
-                        sigInRequest.password()
+                        userCredentials.login(),
+                        userCredentials.password()
                 )
         );
-        return jwtTokenManager.generateToken(sigInRequest.login());
+        return jwtTokenManager.generateToken(userCredentials.login());
     }
 }
