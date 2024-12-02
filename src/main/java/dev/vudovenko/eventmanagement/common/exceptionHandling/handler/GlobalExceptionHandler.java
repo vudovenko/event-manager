@@ -2,11 +2,12 @@ package dev.vudovenko.eventmanagement.common.exceptionHandling.handler;
 
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
-import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowerThanItWasException;
-import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @ControllerAdvice
+@Order
 public class GlobalExceptionHandler {
 
     @ExceptionHandler
@@ -56,34 +58,33 @@ public class GlobalExceptionHandler {
                 .body(errorDto);
     }
 
-    @ExceptionHandler(value = LocationNotFoundException.class)
-    public ResponseEntity<ErrorMessageResponse> handleEntityNotFoundException(
-            RuntimeException e
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorMessageResponse> handleAuthenticationException(
+            BadCredentialsException e
     ) {
-        log.error("Got entity not found exception", e);
+        log.error("Handle authentication exception", e);
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
-                ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage(),
+                ExceptionHandlerMessages.FAILED_TO_AUTHENTICATE.getMessage(),
                 e.getMessage()
         );
 
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(errorDto);
     }
 
-    @ExceptionHandler(value = LocationCapacityIsLowerThanItWasException.class)
-    public ResponseEntity<ErrorMessageResponse>
-    handleLocationCapacityIsLowerThanItWasException(
-            LocationCapacityIsLowerThanItWasException e
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorMessageResponse> handleAuthorizationException(
+            AuthorizationDeniedException e
     ) {
-        log.error("Got location capacity is lower than it was exception", e);
+        log.error("Handle authorization exception", e);
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
-                ExceptionHandlerMessages.LOCATION_CAPACITY_IS_LOWER_THAN_IT_WAS.getMessage(),
+                ExceptionHandlerMessages.FORBIDDEN.getMessage(),
                 e.getMessage()
         );
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.FORBIDDEN)
                 .body(errorDto);
     }
 }

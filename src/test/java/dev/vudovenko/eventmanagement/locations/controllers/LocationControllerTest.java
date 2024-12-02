@@ -11,10 +11,15 @@ import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowe
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.locations.services.LocationService;
+import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -51,6 +56,7 @@ class LocationControllerTest extends AbstractTest {
                         post("/locations")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(locationDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
                 )
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -67,6 +73,29 @@ class LocationControllerTest extends AbstractTest {
                 .isEqualTo(locationDtoToCreate);
     }
 
+    @WithMockUser(authorities = "USER")
+    @Test
+    void shouldReturnForbiddenWhenUserCreateLocation() throws Exception {
+        mockMvc
+                .perform(
+                        post("/locations")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}")
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenCreateLocationWithoutAuthorization() throws Exception {
+        mockMvc
+                .perform(
+                        post("/locations")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
     @Test
     void shouldNotCreateLocationWhenRequestNotValid() throws Exception {
         LocationDto wrongLocationDto = getWrongLocationDto();
@@ -78,6 +107,7 @@ class LocationControllerTest extends AbstractTest {
                         post("/locations")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(wrongLocationDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn()
@@ -104,8 +134,9 @@ class LocationControllerTest extends AbstractTest {
         );
     }
 
-    @Test
-    void shouldSuccessfullyGetAllLocations() throws Exception {
+    @ParameterizedTest
+    @MethodSource("rolesProvider")
+    void shouldSuccessfullyGetAllLocations(UserRole userRole) throws Exception {
         locationRepository.deleteAll();
         Set<LocationDto> locationDtoSet = new HashSet<>();
         IntStream.range(0, 10)
@@ -116,7 +147,10 @@ class LocationControllerTest extends AbstractTest {
                 });
 
         String locationsJson = mockMvc
-                .perform(get("/locations"))
+                .perform(
+                        get("/locations")
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(userRole))
+                )
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -134,11 +168,22 @@ class LocationControllerTest extends AbstractTest {
     }
 
     @Test
-    void shouldSuccessfullyFindLocationById() throws Exception {
+    void shouldReturnUnauthorizedWhenGetAllLocationsWithoutAuthorization() throws Exception {
+        mockMvc
+                .perform(get("/locations"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @ParameterizedTest
+    @MethodSource("rolesProvider")
+    void shouldSuccessfullyFindLocationById(UserRole userRole) throws Exception {
         Location locationToFind = getCreatedLocation();
 
         String foundLocationsJson = mockMvc
-                .perform(get("/locations/{id}", locationToFind.getId()))
+                .perform(
+                        get("/locations/{id}", locationToFind.getId())
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(userRole))
+                )
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -155,11 +200,21 @@ class LocationControllerTest extends AbstractTest {
     }
 
     @Test
-    void shouldNotFindLocationByNonExistentId() throws Exception {
+    void shouldReturnUnauthorizedWhenFindLocationByIdWithoutAuthorization() throws Exception {
+        mockMvc
+                .perform(get("/locations/{id}", 1L))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @ParameterizedTest
+    @MethodSource("rolesProvider")
+    void shouldNotFindLocationByNonExistentId(UserRole userRole) throws Exception {
         Long nonExistentId = Long.MAX_VALUE;
 
         String errorMessageResponseJson = mockMvc
-                .perform(get("/locations/{id}", nonExistentId))
+                .perform(
+                        get("/locations/{id}", nonExistentId)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(userRole)))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()
@@ -186,7 +241,9 @@ class LocationControllerTest extends AbstractTest {
         Location locationToDelete = getCreatedLocation();
 
         String deletedLocationJson = mockMvc
-                .perform(delete("/locations/{id}", locationToDelete.getId()))
+                .perform(
+                        delete("/locations/{id}", locationToDelete.getId())
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN)))
                 .andExpect(status().isNoContent())
                 .andReturn()
                 .getResponse()
@@ -202,12 +259,29 @@ class LocationControllerTest extends AbstractTest {
                 .isEqualTo(locationToDelete);
     }
 
+    @WithMockUser(authorities = "USER")
+    @Test
+    void shouldReturnForbiddenWhenUserDeleteLocationById() throws Exception {
+        mockMvc
+                .perform(delete("/locations/{id}", 1L))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenDeleteLocationByIdWithoutAuthorization() throws Exception {
+        mockMvc
+                .perform(delete("/locations/{id}", 1L))
+                .andExpect(status().isUnauthorized());
+    }
+
     @Test
     void shouldNotDeleteLocationByNonExistentId() throws Exception {
         Long nonExistentLocationId = Long.MAX_VALUE;
 
         String errorMessageResponseJson = mockMvc
-                .perform(delete("/locations/{id}", nonExistentLocationId))
+                .perform(
+                        delete("/locations/{id}", nonExistentLocationId)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN)))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()
@@ -248,6 +322,7 @@ class LocationControllerTest extends AbstractTest {
                         put("/locations/{id}", createdLocation.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(locationDtoToUpdateJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
                 )
                 .andExpect(status().isOk())
                 .andReturn()
@@ -264,6 +339,29 @@ class LocationControllerTest extends AbstractTest {
                 .usingRecursiveComparison()
                 .ignoringFields("id")
                 .isEqualTo(locationDtoMapper.toDomain(locationDtoToUpdate));
+    }
+
+    @WithMockUser(authorities = "USER")
+    @Test
+    void shouldReturnForbiddenWhenUserUpdateLocation() throws Exception {
+        mockMvc
+                .perform(
+                        put("/locations/{id}", 1L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}")
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenUpdateLocationWithoutAuthorization() throws Exception {
+        mockMvc
+                .perform(
+                        put("/locations/{id}", 1L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}")
+                )
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -286,6 +384,7 @@ class LocationControllerTest extends AbstractTest {
                         put("/locations/{id}", nonExistentLocationId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(invalidLocationDtoToUpdateJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
                 )
                 .andExpect(status().isNotFound())
                 .andReturn()
@@ -321,6 +420,7 @@ class LocationControllerTest extends AbstractTest {
                         put("/locations/{id}", createdLocation.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(invalidLocationDtoToUpdateJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn()
@@ -374,6 +474,7 @@ class LocationControllerTest extends AbstractTest {
                         put("/locations/{id}", createdLocation.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(locationDtoToUpdateJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
                 )
                 .andExpect(status().isBadRequest())
                 .andReturn()
