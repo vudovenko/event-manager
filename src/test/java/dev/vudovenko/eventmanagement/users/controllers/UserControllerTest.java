@@ -3,6 +3,7 @@ package dev.vudovenko.eventmanagement.users.controllers;
 import dev.vudovenko.eventmanagement.AbstractTest;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
+import dev.vudovenko.eventmanagement.security.jwt.JwtTokenManager;
 import dev.vudovenko.eventmanagement.security.jwt.dto.JwtTokenResponse;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.dto.UserCredentials;
@@ -29,6 +30,8 @@ class UserControllerTest extends AbstractTest {
 
     @Autowired
     private UserRegistrationService userRegistrationService;
+    @Autowired
+    private JwtTokenManager jwtTokenManager;
 
     @Test
     void shouldSuccessfullyRegisterUser() throws Exception {
@@ -170,6 +173,7 @@ class UserControllerTest extends AbstractTest {
 
         Assertions.assertNotNull(jwtTokenResponse.jwt());
         Assertions.assertFalse(jwtTokenResponse.jwt().isEmpty());
+        Assertions.assertTrue(jwtTokenManager.isTokenValid(jwtTokenResponse.jwt()));
     }
 
     @Test

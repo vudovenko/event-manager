@@ -40,4 +40,16 @@ public class JwtTokenManager {
                 .getPayload()
                 .getSubject();
     }
+
+    public boolean isTokenValid(String jwt) {
+        try {
+            Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(jwt);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
