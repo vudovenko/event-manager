@@ -7,6 +7,7 @@ import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.dto.UserCredentials;
 import dev.vudovenko.eventmanagement.users.dto.UserRegistration;
 import dev.vudovenko.eventmanagement.users.dto.UserDto;
+import dev.vudovenko.eventmanagement.users.services.UserRegistrationService;
 import dev.vudovenko.eventmanagement.users.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final UserRegistrationService userRegistrationService;
     private final JwtAuthenticationService jwtAuthenticationService;
     private final DtoMapper<User, UserDto> userDtoMapper;
 
@@ -29,7 +31,7 @@ public class UserController {
             @Valid @RequestBody UserRegistration userRegistration
     ) {
         log.info("Get request for sign-up: login={}", userRegistration.login());
-        User user = userService.registerUser(userRegistration);
+        User user = userRegistrationService.registerUser(userRegistration);
 
         return ResponseEntity
                 .status(201)

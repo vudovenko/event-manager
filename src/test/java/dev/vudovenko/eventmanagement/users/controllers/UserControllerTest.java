@@ -10,14 +10,13 @@ import dev.vudovenko.eventmanagement.users.dto.UserDto;
 import dev.vudovenko.eventmanagement.users.dto.UserRegistration;
 import dev.vudovenko.eventmanagement.users.exceptions.LoginAlreadyTakenException;
 import dev.vudovenko.eventmanagement.users.exceptions.UserIdNotFoundException;
-import dev.vudovenko.eventmanagement.users.services.UserService;
+import dev.vudovenko.eventmanagement.users.services.UserRegistrationService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDateTime;
@@ -29,9 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest extends AbstractTest {
 
     @Autowired
-    private UserService userService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private UserRegistrationService userRegistrationService;
 
     @Test
     void shouldSuccessfullyRegisterUser() throws Exception {
@@ -142,7 +139,7 @@ class UserControllerTest extends AbstractTest {
     @Test
     void shouldSuccessfullyAuthorizeUser() throws Exception {
         String password = "password-" + getRandomInt();
-        User registeredUser = userService.registerUser(
+        User registeredUser = userRegistrationService.registerUser(
                 new UserRegistration(
                         "login-" + getRandomInt(),
                         password,
@@ -322,7 +319,7 @@ class UserControllerTest extends AbstractTest {
     }
 
     private User getRegisteredUser() {
-        return userService.registerUser(
+        return userRegistrationService.registerUser(
                 new UserRegistration(
                         "login-" + getRandomInt(),
                         "password-" + getRandomInt(),
