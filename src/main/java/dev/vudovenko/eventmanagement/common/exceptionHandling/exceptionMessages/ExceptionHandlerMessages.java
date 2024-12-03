@@ -13,7 +13,8 @@ public enum ExceptionHandlerMessages {
     USER_ID_NOT_FOUND("User id not found"),
     LOGIN_ALREADY_TAKEN("Login already taken"),
     FAILED_TO_AUTHENTICATE("Failed to authenticate"),
-    FORBIDDEN("Forbidden");
+    FORBIDDEN("Forbidden"),
+    DATE_TIME_PARSE_EXCEPTION("Date time parse exception"),;
 
 
     private final String message;
