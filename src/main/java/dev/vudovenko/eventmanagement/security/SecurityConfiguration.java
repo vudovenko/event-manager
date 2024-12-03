@@ -57,6 +57,9 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/users/**")
                                 .permitAll()
 
+                                .requestMatchers(HttpMethod.POST, "/events")
+                                .hasAuthority("USER")
+
                                 .anyRequest()
                                 .authenticated()
                 )
