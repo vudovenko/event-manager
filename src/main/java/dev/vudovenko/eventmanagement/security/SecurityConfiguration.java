@@ -12,6 +12,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -46,9 +47,6 @@ public class SecurityConfiguration {
                 )
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/event-manager-openapi.yaml/**")
-                                .permitAll()
-
                                 .requestMatchers(HttpMethod.GET, "/locations/**")
                                 .hasAnyAuthority("ADMIN", "USER")
                                 .requestMatchers("/locations/**")
@@ -69,6 +67,29 @@ public class SecurityConfiguration {
                 )
                 .addFilterBefore(jwtTokenFilter, AnonymousAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.debug(true)
+                .ignoring()
+                .requestMatchers(
+                        "/css/**",
+                        "/js/**",
+                        "/img/**",
+                        "/lib/**",
+                        "/favicon.ico",
+                        "/swagger-ui/**",
+                        "/v2/api-docs",
+                        "/v3/api-docs",
+                        "/configuration/ui",
+                        "/swagger-resources/**",
+                        "/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**",
+                        "/v3/api-docs/swagger-config",
+                        "/event-manager-openapi.yaml"
+                );
     }
 
     @Bean

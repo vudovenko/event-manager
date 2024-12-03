@@ -49,15 +49,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         String jwtToken = authorizationHeader.substring(7);
 
-        String loginFromToken;
-        try {
-            loginFromToken = jwtTokenManager.getLoginFromToken(jwtToken);
-        } catch (Exception e) {
-            log.error("Error while reading jwt", e);
+
+        if (!jwtTokenManager.isTokenValid(jwtToken)) {
+            log.error("Token is not valid: {}", jwtToken);
             filterChain.doFilter(request, response);
             return;
         }
 
+        String loginFromToken = jwtTokenManager.getLoginFromToken(jwtToken);
         User user = userService.findByLogin(loginFromToken);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
