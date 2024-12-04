@@ -12,6 +12,8 @@ import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundExcept
 import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
+import dev.vudovenko.eventmanagement.util.LocationTestUtils;
+import dev.vudovenko.eventmanagement.util.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,12 +31,14 @@ import java.util.stream.IntStream;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class LocationControllerTest extends AbstractTest {
+public class LocationControllerTest extends AbstractTest {
 
     @Autowired
     private LocationService locationService;
     @Autowired
     private LocationRepository locationRepository;
+    @Autowired
+    private LocationTestUtils locationTestUtils;
 
     @Autowired
     private DtoMapper<Location, LocationDto> locationDtoMapper;
@@ -43,8 +47,8 @@ class LocationControllerTest extends AbstractTest {
     void shouldSuccessfullyCreateLocation() throws Exception {
         LocationDto locationDtoToCreate = new LocationDto(
                 null,
-                "location-" + getRandomInt(),
-                "address-" + getRandomInt(),
+                "location-" + RandomUtils.getRandomInt(),
+                "address-" + RandomUtils.getRandomInt(),
                 100,
                 "description"
         );
@@ -98,7 +102,7 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldNotCreateLocationWhenRequestNotValid() throws Exception {
-        LocationDto wrongLocationDto = getWrongLocationDto();
+        LocationDto wrongLocationDto = locationTestUtils.getWrongLocationDto();
 
         String wrongLocationDtoJson = objectMapper.writeValueAsString(wrongLocationDto);
 
@@ -141,7 +145,7 @@ class LocationControllerTest extends AbstractTest {
         Set<LocationDto> locationDtoSet = new HashSet<>();
         IntStream.range(0, 10)
                 .forEach(i -> {
-                    Location location = getCreatedLocation();
+                    Location location = locationTestUtils.getCreatedLocation();
 
                     locationDtoSet.add(locationDtoMapper.toDto(location));
                 });
@@ -177,7 +181,7 @@ class LocationControllerTest extends AbstractTest {
     @ParameterizedTest
     @MethodSource("rolesProvider")
     void shouldSuccessfullyFindLocationById(UserRole userRole) throws Exception {
-        Location locationToFind = getCreatedLocation();
+        Location locationToFind = locationTestUtils.getCreatedLocation();
 
         String foundLocationsJson = mockMvc
                 .perform(
@@ -238,7 +242,7 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldSuccessfullyDeleteLocationById() throws Exception {
-        Location locationToDelete = getCreatedLocation();
+        Location locationToDelete = locationTestUtils.getCreatedLocation();
 
         String deletedLocationJson = mockMvc
                 .perform(
@@ -305,7 +309,7 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldSuccessfullyUpdateLocation() throws Exception {
-        Location createdLocation = getCreatedLocation();
+        Location createdLocation = locationTestUtils.getCreatedLocation();
 
         LocationDto locationDtoToUpdate = new LocationDto(
                 null,
@@ -366,7 +370,7 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldNotUpdateLocationWithNonExistentId() throws Exception {
-        Location createdLocation = getCreatedLocation();
+        Location createdLocation = locationTestUtils.getCreatedLocation();
 
         Long nonExistentLocationId = Long.MAX_VALUE;
         LocationDto invalidLocationDtoToUpdate = new LocationDto(
@@ -409,9 +413,9 @@ class LocationControllerTest extends AbstractTest {
 
     @Test
     void shouldNotUpdateLocationWhenRequestIsInvalid() throws Exception {
-        Location createdLocation = getCreatedLocation();
+        Location createdLocation = locationTestUtils.getCreatedLocation();
 
-        LocationDto invalidLocationDtoToUpdate = getWrongLocationDto();
+        LocationDto invalidLocationDtoToUpdate = locationTestUtils.getWrongLocationDto();
 
         String invalidLocationDtoToUpdateJson = objectMapper.writeValueAsString(invalidLocationDtoToUpdate);
 
@@ -452,8 +456,8 @@ class LocationControllerTest extends AbstractTest {
         Location createdLocation = locationService.createLocation(
                 new Location(
                         null,
-                        "location-" + getRandomInt(),
-                        "address-" + getRandomInt(),
+                        "location-" + RandomUtils.getRandomInt(),
+                        "address-" + RandomUtils.getRandomInt(),
                         100,
                         "description"
                 )
@@ -498,28 +502,6 @@ class LocationControllerTest extends AbstractTest {
         Assertions.assertTrue(
                 errorMessageResponse.dateTime()
                         .isBefore(LocalDateTime.now().plusSeconds(1))
-        );
-    }
-
-    private Location getCreatedLocation() {
-        return locationService.createLocation(
-                new Location(
-                        null,
-                        "location-" + getRandomInt(),
-                        "address-" + getRandomInt(),
-                        100,
-                        "description"
-                )
-        );
-    }
-
-    private LocationDto getWrongLocationDto() {
-        return new LocationDto(
-                Long.MAX_VALUE,
-                null,
-                "   ",
-                1,
-                null
         );
     }
 }

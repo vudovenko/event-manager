@@ -2,6 +2,7 @@ package dev.vudovenko.eventmanagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
+import dev.vudovenko.eventmanagement.util.TokenTestUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +14,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.security.SecureRandom;
 import java.util.stream.Stream;
 
 @Log4j2
@@ -26,9 +26,7 @@ public class AbstractTest {
     @Autowired
     protected ObjectMapper objectMapper;
     @Autowired
-    protected UserTestUtils userTestUtils;
-
-    protected final SecureRandom secureRandom = new SecureRandom();
+    protected TokenTestUtils tokenTestUtils;
 
     private static volatile boolean isSharedSetupDone = false;
 
@@ -57,12 +55,8 @@ public class AbstractTest {
         POSTGRES_CONTAINER.stop();
     }
 
-    public int getRandomInt() {
-        return secureRandom.nextInt();
-    }
-
     public String getAuthorizationHeader(UserRole role) {
-        return "Bearer " + userTestUtils.getJwtTokenWithRole(role);
+        return "Bearer " + tokenTestUtils.getJwtTokenWithRole(role);
     }
 
     public static Stream<UserRole> rolesProvider() {

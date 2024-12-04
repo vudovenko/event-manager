@@ -13,6 +13,8 @@ import dev.vudovenko.eventmanagement.users.exceptions.LoginAlreadyTakenException
 import dev.vudovenko.eventmanagement.users.exceptions.UserIdNotFoundException;
 import dev.vudovenko.eventmanagement.users.services.UserRegistrationService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
+import dev.vudovenko.eventmanagement.util.RandomUtils;
+import dev.vudovenko.eventmanagement.util.UserTestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +34,14 @@ class UserControllerTest extends AbstractTest {
     private UserRegistrationService userRegistrationService;
     @Autowired
     private JwtTokenManager jwtTokenManager;
+    @Autowired
+    private UserTestUtils userTestUtils;
 
     @Test
     void shouldSuccessfullyRegisterUser() throws Exception {
         UserRegistration userRegistration = new UserRegistration(
-                "login-" + getRandomInt(),
-                "password-" + getRandomInt(),
+                "login-" + RandomUtils.getRandomInt(),
+                "password-" + RandomUtils.getRandomInt(),
                 20
         );
 
@@ -64,11 +68,11 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void shouldNotRegisterUserWhenLoginIsAlreadyTaken() throws Exception {
-        User registeredUser = getRegisteredUser();
+        User registeredUser = userTestUtils.getRegisteredUser();
 
         UserRegistration userRegistrationWithExistingLogin = new UserRegistration(
                 registeredUser.getLogin(),
-                "password-" + getRandomInt(),
+                "password-" + RandomUtils.getRandomInt(),
                 35
         );
 
@@ -105,7 +109,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void shouldNotRegisterUserWhenRequestNotValid() throws Exception {
-        UserRegistration wrongUserRegistration = getWrongUserRegistration();
+        UserRegistration wrongUserRegistration = userTestUtils.getWrongUserRegistration();
 
         String wrongUserRegistrationJson = objectMapper.writeValueAsString(wrongUserRegistration);
 
@@ -141,11 +145,11 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void shouldSuccessfullyAuthorizeUser() throws Exception {
-        String password = "password-" + getRandomInt();
+        String password = "password-" + RandomUtils.getRandomInt();
         User registeredUser = userRegistrationService.registerUser(
                 new User(
                         null,
-                        "login-" + getRandomInt(),
+                        "login-" + RandomUtils.getRandomInt(),
                         password,
                         30,
                         UserRole.USER
@@ -181,8 +185,8 @@ class UserControllerTest extends AbstractTest {
     @Test
     void shouldNotAuthorizeUserWhenCredentialsAreWrong() throws Exception {
         UserCredentials wrongUserCredentials = new UserCredentials(
-                "login-" + getRandomInt(),
-                "password-" + getRandomInt()
+                "login-" + RandomUtils.getRandomInt(),
+                "password-" + RandomUtils.getRandomInt()
         );
 
         String wrongUserCredentialsJson = objectMapper
@@ -255,7 +259,7 @@ class UserControllerTest extends AbstractTest {
 
     @Test
     void shouldReturnInformationAboutUser() throws Exception {
-        User registeredUser = getRegisteredUser();
+        User registeredUser = userTestUtils.getRegisteredUser();
 
         String userDtoJson = mockMvc
                 .perform(
@@ -321,26 +325,6 @@ class UserControllerTest extends AbstractTest {
         Assertions.assertTrue(
                 errorMessageResponse.dateTime()
                         .isBefore(LocalDateTime.now().plusSeconds(1))
-        );
-    }
-
-    private User getRegisteredUser() {
-        return userRegistrationService.registerUser(
-                new User(
-                        null,
-                        "login-" + getRandomInt(),
-                        "password-" + getRandomInt(),
-                        20,
-                        UserRole.USER
-                )
-        );
-    }
-
-    private UserRegistration getWrongUserRegistration() {
-        return new UserRegistration(
-                null,
-                "    ",
-                10
         );
     }
 }

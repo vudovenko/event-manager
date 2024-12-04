@@ -1,17 +1,18 @@
-package dev.vudovenko.eventmanagement;
+package dev.vudovenko.eventmanagement.util;
 
 import dev.vudovenko.eventmanagement.security.jwt.JwtTokenManager;
 import dev.vudovenko.eventmanagement.users.services.DefaultUserInitializer;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-public class UserTestUtils {
+public class TokenTestUtils {
 
-    private final JwtTokenManager jwtTokenManager;
-    private final DefaultUserInitializer defaultUserInitializer;
+    @Autowired
+    private JwtTokenManager jwtTokenManager;
+    @Autowired
+    private DefaultUserInitializer defaultUserInitializer;
 
     public String getJwtTokenWithRole(UserRole userRole) {
         defaultUserInitializer.createDefaultUsers();
