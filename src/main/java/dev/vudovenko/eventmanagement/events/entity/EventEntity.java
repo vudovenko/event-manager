@@ -1,6 +1,8 @@
 package dev.vudovenko.eventmanagement.events.entity;
 
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
+import dev.vudovenko.eventmanagement.locations.entity.LocationEntity;
+import dev.vudovenko.eventmanagement.users.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,8 +25,10 @@ public class EventEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private UserEntity owner;
 
     @Column(name = "max_places", nullable = false)
     private Integer maxPlaces;
@@ -41,8 +45,10 @@ public class EventEntity {
     @Column(name = "duration", nullable = false)
     private Integer duration;
 
-    @Column(name = "location_id", nullable = false)
-    private Long locationId;
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id", nullable = false)
+    private LocationEntity location;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

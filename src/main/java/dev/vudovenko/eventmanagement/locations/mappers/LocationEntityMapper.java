@@ -15,7 +15,8 @@ public class LocationEntityMapper implements EntityMapper<Location, LocationEnti
                 locationEntity.getName(),
                 locationEntity.getAddress(),
                 locationEntity.getCapacity(),
-                locationEntity.getDescription()
+                locationEntity.getDescription(),
+                locationEntity.getEvents()
         );
     }
 
@@ -26,7 +27,8 @@ public class LocationEntityMapper implements EntityMapper<Location, LocationEnti
                 location.getName(),
                 location.getAddress(),
                 location.getCapacity(),
-                location.getDescription()
+                location.getDescription(),
+                location.getEvents()
         );
     }
 }

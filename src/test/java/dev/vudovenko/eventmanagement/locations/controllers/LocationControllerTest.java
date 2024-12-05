@@ -459,7 +459,8 @@ public class LocationControllerTest extends AbstractTest {
                         "location-" + RandomUtils.getRandomInt(),
                         "address-" + RandomUtils.getRandomInt(),
                         100,
-                        "description"
+                        "description",
+                        new HashSet<>()
                 )
         );
 

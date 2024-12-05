@@ -1,7 +1,10 @@
 package dev.vudovenko.eventmanagement.locations.entity;
 
+import dev.vudovenko.eventmanagement.events.entity.EventEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -28,4 +31,8 @@ public class LocationEntity {
 
     @Column(name = "description")
     private String description;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "location")
+    private Set<EventEntity> events;
 }

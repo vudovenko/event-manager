@@ -5,6 +5,8 @@ import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+
 @Component
 public class LocationDtoMapper implements DtoMapper<Location, LocationDto> {
 
@@ -15,7 +17,8 @@ public class LocationDtoMapper implements DtoMapper<Location, LocationDto> {
                 locationDto.name(),
                 locationDto.address(),
                 locationDto.capacity(),
-                locationDto.description()
+                locationDto.description(),
+                new HashSet<>()
         );
     }
 

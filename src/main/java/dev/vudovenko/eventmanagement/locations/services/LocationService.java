@@ -15,4 +15,6 @@ public interface LocationService {
     Location updateLocation(Long id, Location location);
 
     Location deleteLocation(Long id);
+
+    Integer getNumberAvailableSeats(Long locationId);
 }

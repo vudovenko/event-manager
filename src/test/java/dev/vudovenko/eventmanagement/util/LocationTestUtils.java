@@ -6,6 +6,8 @@ import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+
 @Component
 public class LocationTestUtils {
 
@@ -19,7 +21,8 @@ public class LocationTestUtils {
                         "location-" + RandomUtils.getRandomInt(),
                         "address-" + RandomUtils.getRandomInt(),
                         100,
-                        "description"
+                        "description",
+                        new HashSet<>()
                 )
         );
     }

@@ -6,7 +6,9 @@ public interface UserService {
 
     User save(User user);
 
-    Boolean existsByLogin(String login);
+    boolean existsByLogin(String login);
+
+    boolean existsById(Long id);
 
     User findByLogin(String login);
 

@@ -1,6 +1,7 @@
 package dev.vudovenko.eventmanagement.events.controllers;
 
 import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
+import dev.vudovenko.eventmanagement.common.mappers.ToDomainMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
 import dev.vudovenko.eventmanagement.events.dto.EventDto;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EventController {
 
     private final EventService eventService;
+    private final ToDomainMapper<Event, EventCreateRequestDto> createRequestDtoMapper;
     private final DtoMapper<Event, EventDto> eventDtoMapper;
 
     @PostMapping
@@ -31,26 +33,11 @@ public class EventController {
         log.info("Get request for create event");
 
         Event createdEvent = eventService.createEvent(
-                requestEventToDomain(eventCreateRequestDto)
+                createRequestDtoMapper.toDomain(eventCreateRequestDto)
         );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(eventDtoMapper.toDto(createdEvent));
-    }
-
-    private Event requestEventToDomain(EventCreateRequestDto eventCreateRequestDto) {
-        return new Event(
-                null,
-                eventCreateRequestDto.name(),
-                null,
-                eventCreateRequestDto.maxPlaces(),
-                null,
-                eventCreateRequestDto.date(),
-                eventCreateRequestDto.cost(),
-                eventCreateRequestDto.duration(),
-                eventCreateRequestDto.locationId(),
-                null
-        );
     }
 }

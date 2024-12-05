@@ -1,6 +1,5 @@
 package dev.vudovenko.eventmanagement.users.services;
 
-import dev.vudovenko.eventmanagement.security.jwt.JwtTokenManager;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
 import dev.vudovenko.eventmanagement.users.repositories.UserRepository;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
@@ -16,7 +15,6 @@ public class DefaultUserInitializer {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenManager jwtTokenManager;
 
     public static final String DEFAULT_ADMIN_LOGIN = "admin";
     public static final String DEFAULT_USER_LOGIN = "user";
@@ -27,15 +25,15 @@ public class DefaultUserInitializer {
     public void createDefaultUsers() {
         synchronized (DefaultUserInitializer.class) {
             if (!isUsersInitialized) {
-                createUser(DEFAULT_ADMIN_LOGIN, "admin", 20, UserRole.ADMIN);
-                createUser(DEFAULT_USER_LOGIN, "user", 40, UserRole.USER);
+                createUserIfNotExists(DEFAULT_ADMIN_LOGIN, "admin", 20, UserRole.ADMIN);
+                createUserIfNotExists(DEFAULT_USER_LOGIN, "user", 40, UserRole.USER);
 
                 isUsersInitialized = true;
             }
         }
     }
 
-    private void createUser(
+    private void createUserIfNotExists(
             String login,
             String password,
             Integer age,

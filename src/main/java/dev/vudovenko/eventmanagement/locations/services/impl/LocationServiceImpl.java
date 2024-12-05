@@ -81,4 +81,9 @@ public class LocationServiceImpl implements LocationService {
 
         return locationEntityMapper.toDomain(locationEntityToDelete);
     }
+
+    @Override
+    public Integer getNumberAvailableSeats(Long locationId) {
+        return locationRepository.getNumberAvailableSeats(locationId);
+    }
 }

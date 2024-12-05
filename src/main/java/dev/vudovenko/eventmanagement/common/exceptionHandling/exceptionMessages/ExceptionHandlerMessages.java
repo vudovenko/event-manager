@@ -14,7 +14,9 @@ public enum ExceptionHandlerMessages {
     LOGIN_ALREADY_TAKEN("Login already taken"),
     FAILED_TO_AUTHENTICATE("Failed to authenticate"),
     FORBIDDEN("Forbidden"),
-    DATE_TIME_PARSE_EXCEPTION("Date time parse exception"),;
+    DATE_TIME_PARSE_EXCEPTION("Date time parse exception"),
+    DATE_EVENT_IN_PAST("Date event in past"),
+    INSUFFICIENT_SEATS("Insufficient capacity");
 
 
     private final String message;

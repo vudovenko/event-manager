@@ -1,8 +1,6 @@
 package dev.vudovenko.eventmanagement.common.mappers;
 
-public interface DtoMapper<Domain, DTO> {
-
-    Domain toDomain(DTO dto);
+public interface DtoMapper<Domain, DTO> extends ToDomainMapper<Domain, DTO> {
 
     DTO toDto(Domain domain);
 }

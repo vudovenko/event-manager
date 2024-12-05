@@ -1,6 +1,8 @@
 package dev.vudovenko.eventmanagement.events.domain;
 
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
+import dev.vudovenko.eventmanagement.locations.domain.Location;
+import dev.vudovenko.eventmanagement.users.domain.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,7 @@ public class Event {
 
     private String name;
 
-    private Long ownerId;
+    private User owner;
 
     private Integer maxPlaces;
 
@@ -29,7 +31,7 @@ public class Event {
 
     private Integer duration;
 
-    private Long locationId;
+    private Location location;
 
     private EventStatus status;
 }
