@@ -143,10 +143,12 @@ class UserControllerTest extends AbstractTest {
     void shouldSuccessfullyAuthorizeUser() throws Exception {
         String password = "password-" + getRandomInt();
         User registeredUser = userRegistrationService.registerUser(
-                new UserRegistration(
+                new User(
+                        null,
                         "login-" + getRandomInt(),
                         password,
-                        30
+                        30,
+                        UserRole.USER
                 )
         );
 
@@ -324,10 +326,12 @@ class UserControllerTest extends AbstractTest {
 
     private User getRegisteredUser() {
         return userRegistrationService.registerUser(
-                new UserRegistration(
+                new User(
+                        null,
                         "login-" + getRandomInt(),
                         "password-" + getRandomInt(),
-                        20
+                        20,
+                        UserRole.USER
                 )
         );
     }
