@@ -2,7 +2,7 @@ package dev.vudovenko.eventmanagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
-import dev.vudovenko.eventmanagement.util.TokenTestUtils;
+import dev.vudovenko.eventmanagement.utils.TokenTestUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

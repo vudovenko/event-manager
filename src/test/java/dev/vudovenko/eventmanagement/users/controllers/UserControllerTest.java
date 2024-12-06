@@ -13,8 +13,8 @@ import dev.vudovenko.eventmanagement.users.exceptions.LoginAlreadyTakenException
 import dev.vudovenko.eventmanagement.users.exceptions.UserIdNotFoundException;
 import dev.vudovenko.eventmanagement.users.services.UserRegistrationService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
-import dev.vudovenko.eventmanagement.util.RandomUtils;
-import dev.vudovenko.eventmanagement.util.UserTestUtils;
+import dev.vudovenko.eventmanagement.utils.RandomUtils;
+import dev.vudovenko.eventmanagement.utils.UserTestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

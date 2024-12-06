@@ -1,4 +1,4 @@
-package dev.vudovenko.eventmanagement.util;
+package dev.vudovenko.eventmanagement.utils;
 
 import dev.vudovenko.eventmanagement.security.jwt.JwtTokenManager;
 import dev.vudovenko.eventmanagement.users.services.DefaultUserInitializer;

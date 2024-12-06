@@ -38,6 +38,11 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    public boolean existsById(Long locationId) {
+        return locationRepository.existsById(locationId);
+    }
+
+    @Override
     public Location createLocation(Location location) {
         LocationEntity createdLocationEntity = locationRepository.save(
                 locationEntityMapper.toEntity(location)

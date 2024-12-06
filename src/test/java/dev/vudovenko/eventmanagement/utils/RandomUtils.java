@@ -1,4 +1,4 @@
-package dev.vudovenko.eventmanagement.util;
+package dev.vudovenko.eventmanagement.utils;
 
 import java.security.SecureRandom;
 

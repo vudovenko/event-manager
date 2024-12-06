@@ -12,8 +12,8 @@ import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundExcept
 import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
-import dev.vudovenko.eventmanagement.util.LocationTestUtils;
-import dev.vudovenko.eventmanagement.util.RandomUtils;
+import dev.vudovenko.eventmanagement.utils.LocationTestUtils;
+import dev.vudovenko.eventmanagement.utils.RandomUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

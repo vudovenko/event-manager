@@ -6,6 +6,7 @@ import dev.vudovenko.eventmanagement.events.exceptions.DateEventInPastException;
 import dev.vudovenko.eventmanagement.events.exceptions.InsufficientSeatsException;
 import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
 import dev.vudovenko.eventmanagement.events.services.EventService;
+import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -44,6 +45,10 @@ public class EventServiceImpl implements EventService {
 
     private void checkAvailabilityPlaces(Event event) {
         Long locationId = event.getLocation().getId();
+        if (!locationService.existsById(locationId)) {
+            throw new LocationNotFoundException(locationId);
+        }
+
         Integer availablePlaces = locationService.getNumberAvailableSeats(locationId);
 
         if (event.getMaxPlaces() > availablePlaces) {

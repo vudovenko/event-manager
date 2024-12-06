@@ -20,7 +20,7 @@ public record EventCreateRequestDto(
         LocalDateTime date,
 
         @NotNull
-        @Min(0)
+        @Min(1)
         Integer cost,
 
         @NotNull

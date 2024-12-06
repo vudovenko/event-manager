@@ -10,6 +10,8 @@ public interface LocationService {
 
     Location getById(Long id);
 
+    boolean existsById(Long locationId);
+
     Location createLocation(Location location);
 
     Location updateLocation(Long id, Location location);
