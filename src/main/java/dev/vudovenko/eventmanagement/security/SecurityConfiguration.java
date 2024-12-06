@@ -47,15 +47,23 @@ public class SecurityConfiguration {
                 )
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers(HttpMethod.GET, "/locations/**")
+                                .requestMatchers(HttpMethod.GET, "/locations")
                                 .hasAnyAuthority("ADMIN", "USER")
-                                .requestMatchers("/locations/**")
+                                .requestMatchers(HttpMethod.POST, "/locations")
+                                .hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/locations/*")
+                                .hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/locations/*")
+                                .hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.PUT, "/locations/*")
                                 .hasAuthority("ADMIN")
 
-                                .requestMatchers(HttpMethod.GET, "/users/**")
-                                .hasAnyAuthority("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/users/**")
+                                .requestMatchers(HttpMethod.POST, "/users")
                                 .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users/auth")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/users/*")
+                                .hasAuthority("ADMIN")
 
                                 .anyRequest()
                                 .authenticated()
