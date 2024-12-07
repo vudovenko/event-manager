@@ -3,6 +3,7 @@ package dev.vudovenko.eventmanagement.utils;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.dto.UserRegistration;
 import dev.vudovenko.eventmanagement.users.services.UserRegistrationService;
+import dev.vudovenko.eventmanagement.users.services.UserService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

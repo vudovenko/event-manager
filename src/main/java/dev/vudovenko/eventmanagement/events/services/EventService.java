@@ -9,4 +9,6 @@ public interface EventService {
     boolean existsById(Long id);
 
     Event findById(Long id);
+
+    void deleteEvent(Long eventId);
 }

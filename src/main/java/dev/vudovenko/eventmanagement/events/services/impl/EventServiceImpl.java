@@ -65,4 +65,9 @@ public class EventServiceImpl implements EventService {
     public Event findById(Long id) {
         throw new UnsupportedOperationException("not implemented yet");
     }
+
+    @Override
+    public void deleteEvent(Long eventId) {
+
+    }
 }

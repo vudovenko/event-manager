@@ -1,6 +1,7 @@
 package dev.vudovenko.eventmanagement.utils;
 
 import dev.vudovenko.eventmanagement.security.jwt.JwtTokenManager;
+import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.services.DefaultUserInitializer;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +24,9 @@ public class TokenTestUtils {
             case USER -> jwtTokenManager
                     .generateToken(DefaultUserInitializer.DEFAULT_USER_LOGIN);
         };
+    }
+
+    public String getJwtToken(User user) {
+        return jwtTokenManager.generateToken(user.getLogin());
     }
 }

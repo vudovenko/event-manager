@@ -4,6 +4,7 @@ import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
 import dev.vudovenko.eventmanagement.events.services.EventService;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
+import dev.vudovenko.eventmanagement.users.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,23 @@ public class EventTestUtils {
     private UserTestUtils userTestUtils;
     @Autowired
     private LocationTestUtils locationTestUtils;
+
+    public Event getCreatedEvent(User eventCreator) {
+        return eventService.createEvent(
+                new Event(
+                        null,
+                        "event-" + RandomUtils.getRandomInt(),
+                        eventCreator,
+                        50,
+                        30,
+                        LocalDateTime.now().plusDays(1),
+                        1200,
+                        60,
+                        locationTestUtils.getCreatedLocation(),
+                        EventStatus.WAIT_START
+                )
+        );
+    }
 
     public Event getCreatedEvent() {
         return eventService.createEvent(

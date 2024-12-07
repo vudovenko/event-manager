@@ -1,6 +1,8 @@
 package dev.vudovenko.eventmanagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.vudovenko.eventmanagement.users.domain.User;
+import dev.vudovenko.eventmanagement.users.services.DefaultUserInitializer;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import dev.vudovenko.eventmanagement.utils.TokenTestUtils;
 import lombok.extern.log4j.Log4j2;
@@ -59,7 +61,18 @@ public class AbstractTest {
         return "Bearer " + tokenTestUtils.getJwtTokenWithRole(role);
     }
 
+    public String getAuthorizationHeader(User user) {
+        return "Bearer " + tokenTestUtils.getJwtToken(user);
+    }
+
     public static Stream<UserRole> rolesProvider() {
         return Stream.of(UserRole.ADMIN, UserRole.USER);
+    }
+
+    public static Stream<String> defaultUserLoginsProvider() {
+        return Stream.of(
+                DefaultUserInitializer.DEFAULT_USER_LOGIN,
+                DefaultUserInitializer.DEFAULT_ADMIN_LOGIN
+        );
     }
 }
