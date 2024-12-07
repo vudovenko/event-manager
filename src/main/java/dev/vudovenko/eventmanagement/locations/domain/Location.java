@@ -1,6 +1,6 @@
 package dev.vudovenko.eventmanagement.locations.domain;
 
-import dev.vudovenko.eventmanagement.events.entity.EventEntity;
+import dev.vudovenko.eventmanagement.events.domain.Event;
 import lombok.*;
 
 import java.util.Set;
@@ -19,7 +19,6 @@ public class Location {
     private Integer capacity;
     private String description;
 
-    // todo сделать просто Event
     @ToString.Exclude
-    private Set<EventEntity> events;
+    private Set<Event> events;
 }

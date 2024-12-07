@@ -7,15 +7,22 @@ import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.entity.LocationEntity;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class EventEntityMapper implements EntityMapper<Event, EventEntity> {
 
     private final EntityMapper<User, UserEntity> userEntityMapper;
     private final EntityMapper<Location, LocationEntity> locationEntityMapper;
+
+    public EventEntityMapper(
+            EntityMapper<User, UserEntity> userEntityMapper,
+            @Lazy EntityMapper<Location, LocationEntity> locationEntityMapper
+    ) {
+        this.userEntityMapper = userEntityMapper;
+        this.locationEntityMapper = locationEntityMapper;
+    }
 
     @Override
     public EventEntity toEntity(Event event) {
