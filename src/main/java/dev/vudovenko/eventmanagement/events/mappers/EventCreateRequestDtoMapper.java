@@ -5,7 +5,7 @@ import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
-import dev.vudovenko.eventmanagement.security.jwt.JwtAuthenticationService;
+import dev.vudovenko.eventmanagement.security.authentication.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EventCreateRequestDtoMapper implements ToDomainMapper<Event, EventCreateRequestDto> {
 
-    private final JwtAuthenticationService jwtAuthenticationService;
+    private final AuthenticationService authenticationService;
 
     @Override
     public Event toDomain(EventCreateRequestDto eventCreateRequestDto) {
@@ -23,7 +23,7 @@ public class EventCreateRequestDtoMapper implements ToDomainMapper<Event, EventC
         return new Event(
                 null,
                 eventCreateRequestDto.name(),
-                jwtAuthenticationService.getCurrentAuthenticatedUserOrThrow(),
+                authenticationService.getCurrentAuthenticatedUserOrThrow(),
                 eventCreateRequestDto.maxPlaces(),
                 0,
                 eventCreateRequestDto.date(),

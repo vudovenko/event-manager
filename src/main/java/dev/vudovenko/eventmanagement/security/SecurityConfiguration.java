@@ -68,7 +68,7 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/events")
                                 .hasAuthority("USER")
                                 .requestMatchers(HttpMethod.DELETE, "/events/*")
-                                .hasAuthority("ADMIN")
+                                .hasAnyAuthority("ADMIN", "USER")
 
                                 .anyRequest()
                                 .authenticated()

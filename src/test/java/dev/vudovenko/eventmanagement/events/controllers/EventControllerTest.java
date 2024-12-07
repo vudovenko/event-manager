@@ -8,10 +8,7 @@ import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
 import dev.vudovenko.eventmanagement.events.dto.EventDto;
 import dev.vudovenko.eventmanagement.events.entity.EventEntity;
-import dev.vudovenko.eventmanagement.events.exceptions.CannotDeleteStartedEventException;
-import dev.vudovenko.eventmanagement.events.exceptions.DateEventInPastException;
-import dev.vudovenko.eventmanagement.events.exceptions.InsufficientSeatsException;
-import dev.vudovenko.eventmanagement.events.exceptions.UserNotEventCreatorException;
+import dev.vudovenko.eventmanagement.events.exceptions.*;
 import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
 import dev.vudovenko.eventmanagement.events.services.EventService;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
@@ -35,6 +32,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -455,7 +453,7 @@ class EventControllerTest extends AbstractTest {
                 ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage()
         );
         Assertions.assertEquals(errorMessageResponse.detailedMessage(),
-                LocationNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentEventId));
+                EventNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentEventId));
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
                 errorMessageResponse.dateTime()
@@ -503,7 +501,10 @@ class EventControllerTest extends AbstractTest {
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
                 CannotDeleteStartedEventException.MESSAGE_TEMPLATE
-                        .formatted(createdEvent.getName(), createdEvent.getDate())
+                        .formatted(
+                                createdEvent.getName(),
+                                createdEvent.getDate().truncatedTo(ChronoUnit.SECONDS)
+                        )
         );
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
@@ -552,7 +553,10 @@ class EventControllerTest extends AbstractTest {
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
                 CannotDeleteStartedEventException.MESSAGE_TEMPLATE
-                        .formatted(createdEvent.getName(), createdEvent.getDate())
+                        .formatted(
+                                createdEvent.getName(),
+                                createdEvent.getDate().truncatedTo(ChronoUnit.SECONDS)
+                        )
         );
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(

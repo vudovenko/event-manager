@@ -1,11 +1,9 @@
 package dev.vudovenko.eventmanagement.security.jwt;
 
-import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.dto.UserCredentials;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,15 +21,6 @@ public class JwtAuthenticationService {
                 )
         );
         return jwtTokenManager.generateToken(userCredentials.login());
-    }
-
-    public User getCurrentAuthenticatedUserOrThrow() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new IllegalStateException("Authentication not present");
-        }
-
-        return (User) authentication.getPrincipal();
     }
 }
 

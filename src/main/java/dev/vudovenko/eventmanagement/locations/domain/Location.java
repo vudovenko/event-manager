@@ -19,6 +19,7 @@ public class Location {
     private Integer capacity;
     private String description;
 
+    // todo сделать просто Event
     @ToString.Exclude
     private Set<EventEntity> events;
 }
