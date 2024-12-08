@@ -114,4 +114,9 @@ public class EventServiceImpl implements EventService {
             throw new CannotDeleteStartedEventException(event.getName(), event.getDate());
         }
     }
+
+    @Override
+    public Event updateEvent(Long eventId, Event event) {
+        throw new UnsupportedOperationException();
+    }
 }

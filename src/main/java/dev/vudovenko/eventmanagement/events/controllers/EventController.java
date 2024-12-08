@@ -5,6 +5,7 @@ import dev.vudovenko.eventmanagement.common.mappers.ToDomainMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
 import dev.vudovenko.eventmanagement.events.dto.EventDto;
+import dev.vudovenko.eventmanagement.events.dto.EventUpdateRequestDto;
 import dev.vudovenko.eventmanagement.events.services.EventService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,7 @@ public class EventController {
 
     private final EventService eventService;
     private final ToDomainMapper<Event, EventCreateRequestDto> createRequestDtoMapper;
+    private final ToDomainMapper<Event, EventUpdateRequestDto> updateRequestDtoMapper;
     private final DtoMapper<Event, EventDto> eventDtoMapper;
 
     @PostMapping
@@ -63,5 +65,20 @@ public class EventController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(eventDtoMapper.toDto(event));
+    }
+
+    @PutMapping("/{eventId}")
+    public ResponseEntity<EventDto> updateEvent(
+            @NotNull @PathVariable("eventId") Long eventId,
+            @Valid @RequestBody EventUpdateRequestDto eventUpdateRequestDto
+    ) {
+        log.info("Get request for update event");
+
+        Event event = eventService.updateEvent(
+                eventId,
+                updateRequestDtoMapper.toDomain(eventUpdateRequestDto)
+        );
+
+        return ResponseEntity.ok(eventDtoMapper.toDto(event));
     }
 }
