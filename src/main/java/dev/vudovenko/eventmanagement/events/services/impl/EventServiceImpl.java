@@ -73,10 +73,18 @@ public class EventServiceImpl implements EventService {
         return eventEntityMapper.toDomain(eventEntity);
     }
 
+    @Override
+    public Event findByIdWithOwner(Long eventId) {
+        EventEntity eventEntity = eventRepository.findByIdWithOwner(eventId)
+                .orElseThrow(() -> new EventNotFoundException(eventId));
+
+        return eventEntityMapper.toDomain(eventEntity);
+    }
+
     @Transactional
     @Override
     public void deleteEvent(Long eventId) {
-        Event event = findById(eventId);
+        Event event = findByIdWithOwner(eventId);
         User currentUser = authenticationService.getCurrentAuthenticatedUserOrThrow();
         if (currentUser.getRole().equals(UserRole.USER)
                 && !event.getOwner().equals(currentUser)) {

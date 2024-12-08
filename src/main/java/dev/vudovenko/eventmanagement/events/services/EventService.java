@@ -10,5 +10,7 @@ public interface EventService {
 
     Event findById(Long id);
 
+    Event findByIdWithOwner(Long eventId);
+
     void deleteEvent(Long eventId);
 }
