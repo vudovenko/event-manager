@@ -7,6 +7,7 @@ import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.entity.LocationEntity;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
+import org.hibernate.Hibernate;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -42,16 +43,26 @@ public class EventEntityMapper implements EntityMapper<Event, EventEntity> {
 
     @Override
     public Event toDomain(EventEntity eventEntity) {
+        User owner =
+                Hibernate.isInitialized(eventEntity.getOwner())
+                        ? userEntityMapper.toDomain(eventEntity.getOwner())
+                        : null;
+
+        Location location =
+                Hibernate.isInitialized(eventEntity.getLocation())
+                        ? locationEntityMapper.toDomain(eventEntity.getLocation())
+                        : null;
+
         return new Event(
                 eventEntity.getId(),
                 eventEntity.getName(),
-                userEntityMapper.toDomain(eventEntity.getOwner()),
+                owner,
                 eventEntity.getMaxPlaces(),
                 eventEntity.getOccupiedPlaces(),
                 eventEntity.getDate(),
                 eventEntity.getCost(),
                 eventEntity.getDuration(),
-                locationEntityMapper.toDomain(eventEntity.getLocation()),
+                location,
                 eventEntity.getStatus()
         );
     }

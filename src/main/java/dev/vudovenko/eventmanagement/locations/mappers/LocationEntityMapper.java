@@ -40,7 +40,9 @@ public class LocationEntityMapper implements EntityMapper<Location, LocationEnti
 
     @Override
     public LocationEntity toEntity(Location location) {
-        Set<EventEntity> events = location.getEvents().stream()
+        Set<EventEntity> events = location.getEvents() == null
+                ? Collections.emptySet()
+                : location.getEvents().stream()
                 .map(eventEntityMapper::toEntity)
                 .collect(Collectors.toSet());
 

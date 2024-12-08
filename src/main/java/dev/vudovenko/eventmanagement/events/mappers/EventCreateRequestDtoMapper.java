@@ -9,6 +9,8 @@ import dev.vudovenko.eventmanagement.security.authentication.AuthenticationServi
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+
 @Component
 @RequiredArgsConstructor
 public class EventCreateRequestDtoMapper implements ToDomainMapper<Event, EventCreateRequestDto> {
@@ -19,6 +21,7 @@ public class EventCreateRequestDtoMapper implements ToDomainMapper<Event, EventC
     public Event toDomain(EventCreateRequestDto eventCreateRequestDto) {
         Location location = new Location();
         location.setId(eventCreateRequestDto.locationId());
+        location.setEvents(Collections.emptySet());
 
         return new Event(
                 null,

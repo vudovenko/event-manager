@@ -13,7 +13,6 @@ import dev.vudovenko.eventmanagement.security.authentication.AuthenticationServi
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +26,6 @@ public class EventServiceImpl implements EventService {
     private final LocationService locationService;
     private final AuthenticationService authenticationService;
 
-    //todo удалить
-    private final ModelMapper modelMapper;
     private final EntityMapper<Event, EventEntity> eventEntityMapper;
 
     @Transactional
@@ -38,10 +35,10 @@ public class EventServiceImpl implements EventService {
         checkAvailabilityPlaces(event);
 
         EventEntity createdEvent = eventRepository.save(
-                modelMapper.map(event, EventEntity.class)
+                eventEntityMapper.toEntity(event)
         );
 
-        return modelMapper.map(createdEvent, Event.class);
+        return eventEntityMapper.toDomain(createdEvent);
     }
 
     private static void checkCorrectnessDate(Event event) {
