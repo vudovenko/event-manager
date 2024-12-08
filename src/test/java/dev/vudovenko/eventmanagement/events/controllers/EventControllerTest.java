@@ -3,6 +3,7 @@ package dev.vudovenko.eventmanagement.events.controllers;
 import dev.vudovenko.eventmanagement.AbstractTest;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
+import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
@@ -34,8 +35,7 @@ import org.springframework.http.MediaType;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class EventControllerTest extends AbstractTest {
@@ -54,6 +54,8 @@ class EventControllerTest extends AbstractTest {
     private UserTestUtils userTestUtils;
     @Autowired
     private EntityMapper<User, UserEntity> userEntityMapper;
+    @Autowired
+    private DtoMapper<Event, EventDto> eventDtoMapper;
 
     @Test
     void shouldSuccessfullyCreateEvent() throws Exception {
@@ -609,6 +611,74 @@ class EventControllerTest extends AbstractTest {
                 EventAlreadyCancelledException.MESSAGE_TEMPLATE
                         .formatted(createdEvent.getName())
         );
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("rolesProvider")
+    void shouldSuccessfullyFindEventById(UserRole userRole) throws Exception {
+        Event eventToFind = eventTestUtils.getCreatedEvent();
+
+        String foundLocationsJson = mockMvc
+                .perform(
+                        get("/events/{id}", eventToFind.getId())
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(userRole))
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Event foundEvent = eventDtoMapper.toDomain(
+                objectMapper.readValue(foundLocationsJson, EventDto.class)
+        );
+
+        org.assertj.core.api.Assertions
+                .assertThat(foundEvent)
+                .usingRecursiveComparison()
+                .ignoringFields("date")
+                .isEqualTo(eventToFind);
+
+        Assertions.assertEquals(
+                eventToFind.getDate().truncatedTo(ChronoUnit.SECONDS),
+                foundEvent.getDate().truncatedTo(ChronoUnit.SECONDS)
+        );
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenFindEventByIdWithoutAuthorization() throws Exception {
+        mockMvc
+                .perform(get("/events/{id}", 1L))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @ParameterizedTest
+    @MethodSource("rolesProvider")
+    void shouldNotFindEventByNonExistentId(UserRole userRole) throws Exception {
+        Long nonExistentId = Long.MAX_VALUE;
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        get("/events/{id}", nonExistentId)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(userRole)))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage()
+        );
+        Assertions.assertEquals(errorMessageResponse.detailedMessage(),
+                EventNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId));
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
                 errorMessageResponse.dateTime()

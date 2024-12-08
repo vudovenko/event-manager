@@ -51,4 +51,17 @@ public class EventController {
                 .status(HttpStatus.NO_CONTENT)
                 .build();
     }
+
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventDto> getEvent(
+            @NotNull @PathVariable("eventId") Long eventId
+    ) {
+        log.info("Get request for get event");
+
+        Event event = eventService.findById(eventId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(eventDtoMapper.toDto(event));
+    }
 }
