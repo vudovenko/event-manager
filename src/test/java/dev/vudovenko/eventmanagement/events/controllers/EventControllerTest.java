@@ -566,4 +566,53 @@ class EventControllerTest extends AbstractTest {
                         .isBefore(LocalDateTime.now().plusSeconds(1))
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldNotCancelEventThatIsAlreadyCancelled(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+
+        EventEntity createdEvent = eventRepository.save(
+                new EventEntity(
+                        null,
+                        "event-" + RandomUtils.getRandomInt(),
+                        userEntityMapper.toEntity(owner),
+                        50,
+                        30,
+                        LocalDateTime.now().minusDays(10),
+                        1200,
+                        60,
+                        locationTestUtils.getCreatedLocationEntity(),
+                        EventStatus.CANCELLED
+                )
+        );
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        delete("/events/{id}", createdEvent.getId())
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.EVENT_ALREADY_CANCELLED.getMessage()
+        );
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                EventAlreadyCancelledException.MESSAGE_TEMPLATE
+                        .formatted(createdEvent.getName())
+        );
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
 }

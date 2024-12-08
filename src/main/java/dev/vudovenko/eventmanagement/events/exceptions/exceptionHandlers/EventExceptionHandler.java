@@ -106,4 +106,19 @@ public class EventExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorDto);
     }
+
+    @ExceptionHandler(value = EventAlreadyCancelledException.class)
+    public ResponseEntity<ErrorMessageResponse> handleEventAlreadyCancelledException(
+            EventAlreadyCancelledException e
+    ) {
+        log.error("Got event already cancelled exception", e);
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.EVENT_ALREADY_CANCELLED.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
 }

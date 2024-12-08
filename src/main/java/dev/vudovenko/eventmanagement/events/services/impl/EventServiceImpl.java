@@ -85,18 +85,33 @@ public class EventServiceImpl implements EventService {
     @Override
     public void deleteEvent(Long eventId) {
         Event event = findByIdWithOwner(eventId);
+
+        checkRightsToDeleteEvent(event);
+        checkIfEventHasAlreadyBeenCanceled(event);
+        checkIfEventHasStarted(event);
+
+        event.setStatus(EventStatus.CANCELLED);
+
+        eventRepository.save(eventEntityMapper.toEntity(event));
+    }
+
+    private void checkRightsToDeleteEvent(Event event) {
         User currentUser = authenticationService.getCurrentAuthenticatedUserOrThrow();
         if (currentUser.getRole().equals(UserRole.USER)
                 && !event.getOwner().equals(currentUser)) {
             throw new UserNotEventCreatorException(currentUser.getLogin(), event.getName());
         }
+    }
 
+    private static void checkIfEventHasAlreadyBeenCanceled(Event event) {
+        if (event.getStatus().equals(EventStatus.CANCELLED)) {
+            throw new EventAlreadyCancelledException(event.getName());
+        }
+    }
+
+    private static void checkIfEventHasStarted(Event event) {
         if (!event.getStatus().equals(EventStatus.WAIT_START)) {
             throw new CannotDeleteStartedEventException(event.getName(), event.getDate());
         }
-
-        event.setStatus(EventStatus.CANCELLED);
-
-        eventRepository.save(eventEntityMapper.toEntity(event));
     }
 }
