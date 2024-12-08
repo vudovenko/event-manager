@@ -418,10 +418,12 @@ class EventControllerTest extends AbstractTest {
                 errorMessageResponse.message(),
                 ExceptionHandlerMessages.USER_NOT_EVENT_CREATOR.getMessage()
         );
+
+        User defaultUser = userService.findByLogin(DefaultUserInitializer.DEFAULT_USER_LOGIN);
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
                 UserNotEventCreatorException.MESSAGE_TEMPLATE
-                        .formatted(eventCreator.getId(), eventToCreate.getName())
+                        .formatted(defaultUser.getLogin(), eventToCreate.getName())
         );
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
