@@ -21,4 +21,8 @@ public class Location {
 
     @ToString.Exclude
     private Set<Event> events;
+
+    public Location(Long id) {
+        this.id = id;
+    }
 }

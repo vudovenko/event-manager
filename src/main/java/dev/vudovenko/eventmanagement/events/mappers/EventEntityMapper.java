@@ -46,12 +46,12 @@ public class EventEntityMapper implements EntityMapper<Event, EventEntity> {
         User owner =
                 Hibernate.isInitialized(eventEntity.getOwner())
                         ? userEntityMapper.toDomain(eventEntity.getOwner())
-                        : null;
+                        : new User(eventEntity.getOwner().getId());
 
         Location location =
                 Hibernate.isInitialized(eventEntity.getLocation())
                         ? locationEntityMapper.toDomain(eventEntity.getLocation())
-                        : null;
+                        : new Location(eventEntity.getLocation().getId());
 
         return new Event(
                 eventEntity.getId(),

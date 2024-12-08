@@ -16,4 +16,8 @@ public class User {
     private String passwordHash;
     private Integer age;
     private UserRole role;
+
+    public User(Long id) {
+        this.id = id;
+    }
 }
