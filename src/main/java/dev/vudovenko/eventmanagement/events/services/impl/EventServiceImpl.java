@@ -53,7 +53,11 @@ public class EventServiceImpl implements EventService {
             throw new LocationNotFoundException(locationId);
         }
 
-        Integer availablePlaces = locationService.getNumberAvailableSeats(locationId);
+        Integer availablePlaces = locationService
+                .getNumberAvailableSeatsWithoutTakingIntoAccountEvent(
+                        locationId,
+                        event.getId()
+                );
 
         if (event.getMaxPlaces() > availablePlaces) {
             throw new InsufficientSeatsException(availablePlaces);
@@ -118,6 +122,14 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event updateEvent(Long eventId, Event event) {
-        throw new UnsupportedOperationException();
+        checkCorrectnessDate(event);
+        checkAvailabilityPlaces(event);
+
+        event.setId(eventId);
+        EventEntity createdEvent = eventRepository.save(
+                eventEntityMapper.toEntity(event)
+        );
+
+        return eventEntityMapper.toDomain(createdEvent);
     }
 }

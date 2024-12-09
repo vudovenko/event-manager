@@ -18,5 +18,5 @@ public interface LocationService {
 
     Location deleteLocation(Long id);
 
-    Integer getNumberAvailableSeats(Long locationId);
+    Integer getNumberAvailableSeatsWithoutTakingIntoAccountEvent(Long locationId, Long eventId);
 }

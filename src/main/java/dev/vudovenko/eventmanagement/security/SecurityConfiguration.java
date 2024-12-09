@@ -71,6 +71,8 @@ public class SecurityConfiguration {
                                 .hasAnyAuthority("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.GET, "/events/*")
                                 .hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.PUT, "/events/*")
+                                .hasAnyAuthority("ADMIN", "USER")
 
                                 .anyRequest()
                                 .authenticated()

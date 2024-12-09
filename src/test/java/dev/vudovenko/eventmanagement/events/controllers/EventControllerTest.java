@@ -723,7 +723,7 @@ class EventControllerTest extends AbstractTest {
                 objectMapper.readValue(updatedEventDto, EventDto.class)
         );
 
-        User defaultUser = userService.findByLogin(DefaultUserInitializer.DEFAULT_USER_LOGIN);
+        User defaultUser = userService.findByLogin(DefaultUserInitializer.DEFAULT_ADMIN_LOGIN);
 
         Assertions.assertEquals(updatedEvent.getId(), createdEvent.getId());
         Assertions.assertTrue(eventService.existsById(createdEvent.getId()));

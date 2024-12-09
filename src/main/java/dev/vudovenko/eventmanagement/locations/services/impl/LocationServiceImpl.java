@@ -88,7 +88,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public Integer getNumberAvailableSeats(Long locationId) {
-        return locationRepository.getNumberAvailableSeats(locationId);
+    public Integer getNumberAvailableSeatsWithoutTakingIntoAccountEvent(Long locationId, Long eventId) {
+        return locationRepository.getNumberAvailableSeatsWithoutTakingIntoAccountEvent(locationId, eventId);
     }
 }
