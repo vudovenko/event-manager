@@ -8,6 +8,7 @@ import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
 import dev.vudovenko.eventmanagement.events.dto.EventDto;
+import dev.vudovenko.eventmanagement.events.dto.EventUpdateRequestDto;
 import dev.vudovenko.eventmanagement.events.entity.EventEntity;
 import dev.vudovenko.eventmanagement.events.exceptions.*;
 import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
@@ -243,8 +244,10 @@ class EventControllerTest extends AbstractTest {
                 errorMessageResponse.message(),
                 ExceptionHandlerMessages.DATE_EVENT_IN_PAST.getMessage()
         );
-        Assertions.assertEquals(errorMessageResponse.detailedMessage(),
-                DateEventInPastException.MESSAGE_TEMPLATE.formatted(dateInPast));
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                DateEventInPastException.MESSAGE_TEMPLATE.formatted(dateInPast)
+        );
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
                 errorMessageResponse.dateTime()
@@ -363,18 +366,18 @@ class EventControllerTest extends AbstractTest {
     void shouldDeleteEventWhenUserRoleIsUserAndUserIsEventCreator() throws Exception {
         User eventCreator = userTestUtils.getRegisteredUser();
 
-        Event eventToCreate = eventTestUtils.getCreatedEvent(eventCreator);
+        Event eventToDelete = eventTestUtils.getCreatedEvent(eventCreator);
 
         mockMvc
                 .perform(
-                        delete("/events/{id}", eventToCreate.getId())
+                        delete("/events/{id}", eventToDelete.getId())
                                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(eventCreator))
                 )
                 .andExpect(status().isNoContent());
 
-        Assertions.assertTrue(eventService.existsById(eventToCreate.getId()));
+        Assertions.assertTrue(eventService.existsById(eventToDelete.getId()));
 
-        Event cancelledEvent = eventService.findById(eventToCreate.getId());
+        Event cancelledEvent = eventService.findById(eventToDelete.getId());
         Assertions.assertEquals(cancelledEvent.getStatus(), EventStatus.CANCELLED);
     }
 
@@ -396,11 +399,11 @@ class EventControllerTest extends AbstractTest {
     void shouldNotDeleteEventWhenUserIsNotCreatorAndHasNoAdminRole() throws Exception {
         User eventCreator = userTestUtils.getRegisteredUser();
 
-        Event eventToCreate = eventTestUtils.getCreatedEvent(eventCreator);
+        Event createdEvent = eventTestUtils.getCreatedEvent(eventCreator);
 
         String errorMessageResponseJson = mockMvc
                 .perform(
-                        delete("/events/{id}", eventToCreate.getId())
+                        delete("/events/{id}", createdEvent.getId())
                                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.USER))
                 )
                 .andExpect(status().isForbidden())
@@ -408,9 +411,9 @@ class EventControllerTest extends AbstractTest {
                 .getResponse()
                 .getContentAsString();
 
-        Assertions.assertTrue(eventService.existsById(eventToCreate.getId()));
+        Assertions.assertTrue(eventService.existsById(createdEvent.getId()));
 
-        Event notCancelledEvent = eventService.findById(eventToCreate.getId());
+        Event notCancelledEvent = eventService.findById(createdEvent.getId());
         Assertions.assertEquals(notCancelledEvent.getStatus(), EventStatus.WAIT_START);
 
         ErrorMessageResponse errorMessageResponse = objectMapper
@@ -425,7 +428,7 @@ class EventControllerTest extends AbstractTest {
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
                 UserNotEventCreatorException.MESSAGE_TEMPLATE
-                        .formatted(defaultUser.getLogin(), eventToCreate.getName())
+                        .formatted(defaultUser.getLogin(), createdEvent.getName())
         );
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
@@ -677,8 +680,757 @@ class EventControllerTest extends AbstractTest {
                 errorMessageResponse.message(),
                 ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage()
         );
-        Assertions.assertEquals(errorMessageResponse.detailedMessage(),
-                EventNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId));
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                EventNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId)
+        );
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @Test
+    void shouldSuccessfullyUpdateEvent() throws Exception {
+        Event createdEvent = eventTestUtils.getCreatedEvent();
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent.getName() + "-" + RandomUtils.getRandomInt(),
+                createdEvent.getMaxPlaces() + 10,
+                createdEvent.getDate().plusDays(1),
+                createdEvent.getCost() + 1200,
+                createdEvent.getDuration() + 10,
+                createdEvent.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String updatedEventDto = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.ADMIN))
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Event updatedEvent = eventDtoMapper.toDomain(
+                objectMapper.readValue(updatedEventDto, EventDto.class)
+        );
+
+        User defaultUser = userService.findByLogin(DefaultUserInitializer.DEFAULT_USER_LOGIN);
+
+        Assertions.assertEquals(updatedEvent.getId(), createdEvent.getId());
+        Assertions.assertTrue(eventService.existsById(createdEvent.getId()));
+        Assertions.assertEquals(updatedEvent.getName(), eventUpdateRequestDto.name());
+        Assertions.assertEquals(updatedEvent.getOwner(), defaultUser);
+        Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
+        Assertions.assertEquals(updatedEvent.getOccupiedPlaces(), 0);
+        Assertions.assertEquals(updatedEvent.getDate(), eventUpdateRequestDto.date());
+        Assertions.assertEquals(updatedEvent.getCost(), eventUpdateRequestDto.cost());
+        Assertions.assertEquals(updatedEvent.getDuration(), eventUpdateRequestDto.duration());
+        Assertions.assertEquals(updatedEvent.getLocation().getId(), eventUpdateRequestDto.locationId());
+        Assertions.assertEquals(updatedEvent.getStatus(), EventStatus.WAIT_START);
+    }
+
+    @Test
+    void shouldSuccessfullyUpdateEventWhenUserRoleIsUserAndUserIsEventCreator() throws Exception {
+        User eventCreator = userTestUtils.getRegisteredUser();
+        Event eventToUpdate = eventTestUtils.getCreatedEvent(eventCreator);
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                eventToUpdate.getName() + "-" + RandomUtils.getRandomInt(),
+                eventToUpdate.getMaxPlaces() + 10,
+                eventToUpdate.getDate().plusDays(1),
+                eventToUpdate.getCost() + 1200,
+                eventToUpdate.getDuration() + 10,
+                eventToUpdate.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String updatedEventDto = mockMvc
+                .perform(
+                        put("/events/{id}", eventToUpdate.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(eventCreator))
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Event updatedEvent = eventDtoMapper.toDomain(
+                objectMapper.readValue(updatedEventDto, EventDto.class)
+        );
+
+
+        Assertions.assertEquals(updatedEvent.getId(), eventToUpdate.getId());
+        Assertions.assertTrue(eventService.existsById(eventToUpdate.getId()));
+        Assertions.assertEquals(updatedEvent.getName(), eventUpdateRequestDto.name());
+        Assertions.assertEquals(updatedEvent.getOwner(), eventCreator);
+        Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
+        Assertions.assertEquals(updatedEvent.getOccupiedPlaces(), 0);
+        Assertions.assertEquals(updatedEvent.getDate(), eventUpdateRequestDto.date());
+        Assertions.assertEquals(updatedEvent.getCost(), eventUpdateRequestDto.cost());
+        Assertions.assertEquals(updatedEvent.getDuration(), eventUpdateRequestDto.duration());
+        Assertions.assertEquals(updatedEvent.getLocation().getId(), eventUpdateRequestDto.locationId());
+        Assertions.assertEquals(updatedEvent.getStatus(), EventStatus.WAIT_START);
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenUpdateEventWithoutAuthorization() throws Exception {
+        mockMvc
+                .perform(put("/events/{id}", 1L))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldNotUpdateEventWhenUserIsNotCreatorAndHasNoAdminRole() throws Exception {
+        User eventCreator = userTestUtils.getRegisteredUser();
+
+        Event createdEvent = eventTestUtils.getCreatedEvent(eventCreator);
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent.getName() + "-" + RandomUtils.getRandomInt(),
+                createdEvent.getMaxPlaces() + 10,
+                createdEvent.getDate().plusDays(1),
+                createdEvent.getCost() + 1200,
+                createdEvent.getDuration() + 10,
+                createdEvent.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(UserRole.USER))
+                )
+                .andExpect(status().isForbidden())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Event notUpdatedEvent = eventService.findById(createdEvent.getId());
+
+        Assertions.assertEquals(createdEvent.getId(), notUpdatedEvent.getId());
+        Assertions.assertEquals(createdEvent.getName(), notUpdatedEvent.getName());
+        Assertions.assertEquals(createdEvent.getOwner().getId(), notUpdatedEvent.getOwner().getId());
+        Assertions.assertEquals(createdEvent.getMaxPlaces(), notUpdatedEvent.getMaxPlaces());
+        Assertions.assertEquals(createdEvent.getOccupiedPlaces(), notUpdatedEvent.getOccupiedPlaces());
+        Assertions.assertEquals(createdEvent.getDate(), notUpdatedEvent.getDate());
+        Assertions.assertEquals(createdEvent.getCost(), notUpdatedEvent.getCost());
+        Assertions.assertEquals(createdEvent.getDuration(), notUpdatedEvent.getDuration());
+        Assertions.assertEquals(createdEvent.getLocation().getId(), notUpdatedEvent.getLocation().getId());
+        Assertions.assertEquals(createdEvent.getStatus(), notUpdatedEvent.getStatus());
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(errorMessageResponse.message(),
+                ExceptionHandlerMessages.USER_NOT_EVENT_CREATOR.getMessage()
+        );
+
+        User defaultUser = userService.findByLogin(DefaultUserInitializer.DEFAULT_USER_LOGIN);
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                UserNotEventCreatorException.MESSAGE_TEMPLATE
+                        .formatted(defaultUser.getLogin(), createdEvent.getName())
+        );
+
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldAllowChangingToNewLocationIfCapacityIsSufficient(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+
+        Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
+        Event createdEvent1 = eventTestUtils
+                .getCreatedEvent(
+                        30,
+                        50,
+                        location,
+                        owner
+                );
+
+        Location locationWithNewCapacity = locationTestUtils.getCreatedLocationWithCapacity(200);
+        Event createdEvent2 = eventTestUtils.getCreatedEvent(
+                30,
+                50,
+                locationWithNewCapacity,
+                owner
+        );
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent1.getName(),
+                createdEvent1.getMaxPlaces(),
+                createdEvent1.getDate(),
+                createdEvent1.getCost(),
+                createdEvent1.getDuration(),
+                locationWithNewCapacity.getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String updatedEventDto = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent1.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Event updatedEvent = eventDtoMapper.toDomain(
+                objectMapper.readValue(updatedEventDto, EventDto.class)
+        );
+
+        Assertions.assertTrue(eventService.existsById(createdEvent1.getId()));
+        Assertions.assertEquals(updatedEvent.getId(), createdEvent1.getId());
+        Assertions.assertEquals(updatedEvent.getLocation().getId(), locationWithNewCapacity.getId());
+        Assertions.assertEquals(updatedEvent.getName(), createdEvent1.getName());
+        Assertions.assertEquals(updatedEvent.getOwner(), createdEvent1.getOwner());
+        Assertions.assertEquals(updatedEvent.getMaxPlaces(), createdEvent1.getMaxPlaces());
+        Assertions.assertEquals(updatedEvent.getOccupiedPlaces(), createdEvent1.getOccupiedPlaces());
+        Assertions.assertEquals(updatedEvent.getDate(), createdEvent1.getDate());
+        Assertions.assertEquals(updatedEvent.getCost(), createdEvent1.getCost());
+        Assertions.assertEquals(updatedEvent.getDuration(), createdEvent1.getDuration());
+        Assertions.assertEquals(updatedEvent.getStatus(), createdEvent1.getStatus());
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldNotAllowChangingToNewLocationIfCapacityIsInsufficient(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+
+        Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
+        Event createdEvent1 = eventTestUtils.getCreatedEvent(
+                40,
+                45,
+                location,
+                owner
+        );
+
+        Location locationWithNewCapacity = locationTestUtils
+                .getCreatedLocationWithCapacity(60);
+        Event createdEvent2 = eventTestUtils.getCreatedEvent(
+                40,
+                45,
+                locationWithNewCapacity,
+                owner
+        );
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent1.getName(),
+                createdEvent1.getMaxPlaces(),
+                createdEvent1.getDate(),
+                createdEvent1.getCost(),
+                createdEvent1.getDuration(),
+                locationWithNewCapacity.getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent1.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.LOCATION_CAPACITY_EXCEEDED.getMessage()
+        );
+
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                LocationCapacityExceededException.MESSAGE_TEMPLATE.formatted(
+                        locationWithNewCapacity.getName(),
+                        locationWithNewCapacity.getCapacity() - createdEvent2.getMaxPlaces(),
+                        createdEvent1.getName(),
+                        createdEvent1.getMaxPlaces()
+                )
+        );
+
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+
+        Event notUpdatedEvent = eventService.findById(createdEvent1.getId());
+        Assertions.assertEquals(notUpdatedEvent.getLocation().getId(), location.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldUpdateEventIfLocationCapacityAccommodatesEventMaxPlaces(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+        Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
+        Event createdEvent1 = eventTestUtils.getCreatedEvent(
+                40,
+                45,
+                location,
+                owner
+        );
+        Event createdEvent2 = eventTestUtils.getCreatedEvent(
+                20,
+                30,
+                location,
+                owner
+        );
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent1.getName(),
+                70,
+                createdEvent1.getDate(),
+                createdEvent1.getCost(),
+                createdEvent1.getDuration(),
+                createdEvent1.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String updatedEventDto = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent1.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Event updatedEvent = eventDtoMapper.toDomain(
+                objectMapper.readValue(updatedEventDto, EventDto.class)
+        );
+
+        Assertions.assertTrue(eventService.existsById(createdEvent1.getId()));
+        Assertions.assertEquals(updatedEvent.getId(), createdEvent1.getId());
+
+        Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
+
+        org.assertj.core.api.Assertions
+                .assertThat(updatedEvent)
+                .usingRecursiveComparison()
+                .ignoringFields("date")
+                .ignoringFields("maxPlaces")
+                .isEqualTo(createdEvent1);
+
+        Assertions.assertEquals(
+                updatedEvent.getDate().truncatedTo(ChronoUnit.SECONDS),
+                createdEvent1.getDate().truncatedTo(ChronoUnit.SECONDS)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldNotUpdateEventIfLocationCapacityDoesNotAccommodateEventMaxPlaces(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+        Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
+        Event createdEvent1 = eventTestUtils.getCreatedEvent(
+                40,
+                45,
+                location,
+                owner
+        );
+        Event createdEvent2 = eventTestUtils.getCreatedEvent(
+                20,
+                30,
+                location,
+                owner
+        );
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent1.getName(),
+                100,
+                createdEvent1.getDate(),
+                createdEvent1.getCost(),
+                createdEvent1.getDuration(),
+                createdEvent1.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent1.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.LOCATION_CAPACITY_EXCEEDED.getMessage()
+        );
+
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                LocationCapacityExceededException.MESSAGE_TEMPLATE.formatted(
+                        location.getName(),
+                        location.getCapacity() - createdEvent2.getMaxPlaces(),
+                        createdEvent1.getName(),
+                        createdEvent1.getMaxPlaces()
+                )
+        );
+
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+
+        Event notUpdatedEvent = eventService.findById(createdEvent1.getId());
+        Assertions.assertEquals(notUpdatedEvent.getMaxPlaces(), createdEvent1.getMaxPlaces());
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldUpdateEventIfMaxPlacesAccommodatesOccupiedPlaces(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+        Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
+        Event createdEvent = eventTestUtils.getCreatedEvent(
+                40,
+                60,
+                location,
+                owner
+        );
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent.getName(),
+                50,
+                createdEvent.getDate(),
+                createdEvent.getCost(),
+                createdEvent.getDuration(),
+                createdEvent.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String updatedEventDto = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Event updatedEvent = eventDtoMapper.toDomain(
+                objectMapper.readValue(updatedEventDto, EventDto.class)
+        );
+
+        Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
+
+        org.assertj.core.api.Assertions
+                .assertThat(updatedEvent)
+                .usingRecursiveComparison()
+                .ignoringFields("date")
+                .ignoringFields("maxPlaces")
+                .isEqualTo(createdEvent);
+
+        Assertions.assertEquals(
+                updatedEvent.getDate().truncatedTo(ChronoUnit.SECONDS),
+                createdEvent.getDate().truncatedTo(ChronoUnit.SECONDS)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldNotUpdateEventIfMaxPlacesDoesNotAccommodateEventOccupiedPlaces(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+        Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
+        Event createdEvent = eventTestUtils.getCreatedEvent(
+                40,
+                60,
+                location,
+                owner
+        );
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent.getName(),
+                10,
+                createdEvent.getDate(),
+                createdEvent.getCost(),
+                createdEvent.getDuration(),
+                createdEvent.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.EVENT_OCCUPIED_PLACES_EXCEEDED_MAXIMUM_CAPACITY.getMessage()
+        );
+
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                EventOccupiedPlacesExceedMaxPlacesException.MESSAGE_TEMPLATE.formatted(
+                        createdEvent.getName(),
+                        createdEvent.getOccupiedPlaces(),
+                        eventUpdateRequestDto.maxPlaces()
+                )
+        );
+
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+
+        Event notUpdatedEvent = eventService.findById(createdEvent.getId());
+        Assertions.assertEquals(notUpdatedEvent.getMaxPlaces(), createdEvent.getMaxPlaces());
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldNotUpdateEventWhenRequestNotValid(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+        Event createdEvent = eventTestUtils.getCreatedEvent(owner);
+
+        EventUpdateRequestDto wrongEventUpdateRequestDto
+                = eventTestUtils.getWrongEventUpdateRequestDto();
+
+        String wrongEventUpdateRequestDtoJson
+                = objectMapper.writeValueAsString(wrongEventUpdateRequestDto);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(wrongEventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        String detailedMessage = errorMessageResponse.detailedMessage();
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.VALIDATION_FAILED.getMessage()
+        );
+
+        Assertions.assertTrue(detailedMessage.contains("name:"));
+        Assertions.assertTrue(detailedMessage.contains("maxPlaces:"));
+        Assertions.assertTrue(detailedMessage.contains("date:"));
+        Assertions.assertTrue(detailedMessage.contains("cost:"));
+        Assertions.assertTrue(detailedMessage.contains("duration:"));
+        Assertions.assertTrue(detailedMessage.contains("locationId:"));
+
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldNotUpdateEventWhenLocationNotExists(String defaultUserLogin) throws Exception {
+        Long nonExistentId = Long.MAX_VALUE;
+
+        User owner = userService.findByLogin(defaultUserLogin);
+        Event createdEvent = eventTestUtils.getCreatedEvent(owner);
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent.getName(),
+                createdEvent.getMaxPlaces(),
+                createdEvent.getDate(),
+                createdEvent.getCost(),
+                createdEvent.getDuration(),
+                nonExistentId
+        );
+
+        String eventUpdateRequestDtoJson = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.ENTITY_NOT_FOUND.getMessage()
+        );
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                EventNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId)
+        );
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldNotUpdateEventWhenDateEventInPast(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+        Event createdEvent = eventTestUtils.getCreatedEvent(owner);
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent.getName(),
+                createdEvent.getMaxPlaces(),
+                LocalDateTime.now().minusDays(10),
+                createdEvent.getCost(),
+                createdEvent.getDuration(),
+                createdEvent.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.DATE_EVENT_IN_PAST.getMessage()
+        );
+        Assertions.assertEquals(
+                errorMessageResponse.detailedMessage(),
+                DateEventInPastException.MESSAGE_TEMPLATE.formatted(eventUpdateRequestDto.date())
+        );
+        Assertions.assertNotNull(errorMessageResponse.dateTime());
+        Assertions.assertTrue(
+                errorMessageResponse.dateTime()
+                        .isBefore(LocalDateTime.now().plusSeconds(1))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("defaultUserLoginsProvider")
+    void shouldNotUpdateEventWhenDateFormatIsIncorrect(String defaultUserLogin) throws Exception {
+        User owner = userService.findByLogin(defaultUserLogin);
+        Event createdEvent = eventTestUtils.getCreatedEvent(owner);
+
+        EventUpdateRequestDto eventUpdateRequestDto = new EventUpdateRequestDto(
+                createdEvent.getName(),
+                createdEvent.getMaxPlaces(),
+                null,
+                createdEvent.getCost(),
+                createdEvent.getDuration(),
+                createdEvent.getLocation().getId()
+        );
+
+        String eventUpdateRequestDtoJson = objectMapper.writeValueAsString(eventUpdateRequestDto);
+
+        String incorrectDate = "20-dfs01-d23Td04:56:07.000+00:00";
+        eventUpdateRequestDtoJson = eventUpdateRequestDtoJson
+                .replace("null", "\"" + incorrectDate + "\"");
+
+        String errorMessageResponseJson = mockMvc
+                .perform(
+                        put("/events/{id}", createdEvent.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(eventUpdateRequestDtoJson)
+                                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
+                )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorMessageResponse errorMessageResponse = objectMapper
+                .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
+
+        Assertions.assertEquals(
+                errorMessageResponse.message(),
+                ExceptionHandlerMessages.DATE_TIME_PARSE_EXCEPTION.getMessage()
+        );
+        Assertions.assertTrue(errorMessageResponse.detailedMessage().contains(incorrectDate));
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
                 errorMessageResponse.dateTime()

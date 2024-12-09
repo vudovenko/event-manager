@@ -31,6 +31,19 @@ public class LocationTestUtils {
         );
     }
 
+    public Location getCreatedLocationWithCapacity(int capacity) {
+        return locationService.createLocation(
+                new Location(
+                        null,
+                        "location-" + RandomUtils.getRandomInt(),
+                        "address-" + RandomUtils.getRandomInt(),
+                        capacity,
+                        "description",
+                        new HashSet<>()
+                )
+        );
+    }
+
     public LocationEntity getCreatedLocationEntity() {
         return locationEntityMapper.toEntity(getCreatedLocation());
     }

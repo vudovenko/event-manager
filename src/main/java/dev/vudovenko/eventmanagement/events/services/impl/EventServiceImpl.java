@@ -115,6 +115,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    @Transactional
     @Override
     public Event updateEvent(Long eventId, Event event) {
         throw new UnsupportedOperationException();
