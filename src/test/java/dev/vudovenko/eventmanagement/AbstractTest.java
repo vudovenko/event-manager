@@ -6,6 +6,7 @@ import dev.vudovenko.eventmanagement.users.services.DefaultUserInitializer;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import dev.vudovenko.eventmanagement.utils.TokenTestUtils;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
 
 @Log4j2
@@ -73,6 +76,13 @@ public class AbstractTest {
         return Stream.of(
                 DefaultUserInitializer.DEFAULT_USER_LOGIN,
                 DefaultUserInitializer.DEFAULT_ADMIN_LOGIN
+        );
+    }
+
+    public static void compareDatesWithTruncatedToSeconds(LocalDateTime firstDate, LocalDateTime secondDate) {
+        Assertions.assertEquals(
+                firstDate.truncatedTo(ChronoUnit.SECONDS),
+                secondDate.truncatedTo(ChronoUnit.SECONDS)
         );
     }
 }

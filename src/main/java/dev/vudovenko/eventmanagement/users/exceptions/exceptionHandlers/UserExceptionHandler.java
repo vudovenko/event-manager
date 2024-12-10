@@ -3,6 +3,7 @@ package dev.vudovenko.eventmanagement.users.exceptions.exceptionHandlers;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
 import dev.vudovenko.eventmanagement.users.exceptions.LoginAlreadyTakenException;
+import dev.vudovenko.eventmanagement.users.exceptions.OwnerEventNotFoundException;
 import dev.vudovenko.eventmanagement.users.exceptions.UserIdNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.annotation.Order;
@@ -59,6 +60,21 @@ public class UserExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = OwnerEventNotFoundException.class)
+    public ResponseEntity<ErrorMessageResponse> handleOwnerEventNotFoundException(
+            OwnerEventNotFoundException e
+    ) {
+        log.error("Got owner event not found exception", e);
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.OWNER_EVENT_NOT_FOUND.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(errorDto);
     }
 }

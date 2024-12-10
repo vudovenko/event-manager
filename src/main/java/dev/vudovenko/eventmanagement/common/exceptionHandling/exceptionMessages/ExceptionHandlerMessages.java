@@ -21,7 +21,8 @@ public enum ExceptionHandlerMessages {
     CANNOT_DELETE_STARTED_EVENT("Cannot delete started event"),
     EVENT_ALREADY_CANCELLED("Event already cancelled"),
     LOCATION_CAPACITY_EXCEEDED("Location capacity exceeded"),
-    EVENT_OCCUPIED_PLACES_EXCEEDED_MAXIMUM_CAPACITY("Event occupied places exceeded maximum capacity");
+    EVENT_OCCUPIED_PLACES_EXCEEDED_MAXIMUM_CAPACITY("Event occupied places exceeded maximum capacity"),
+    OWNER_EVENT_NOT_FOUND("The owner for the event has not been found");
 
 
     private final String message;

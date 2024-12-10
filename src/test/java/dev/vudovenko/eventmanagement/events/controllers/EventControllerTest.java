@@ -36,6 +36,7 @@ import org.springframework.http.MediaType;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -640,16 +641,12 @@ class EventControllerTest extends AbstractTest {
                 objectMapper.readValue(foundLocationsJson, EventDto.class)
         );
 
-        org.assertj.core.api.Assertions
-                .assertThat(foundEvent)
+        assertThat(foundEvent)
                 .usingRecursiveComparison()
                 .ignoringFields("date")
                 .isEqualTo(eventToFind);
 
-        Assertions.assertEquals(
-                eventToFind.getDate().truncatedTo(ChronoUnit.SECONDS),
-                foundEvent.getDate().truncatedTo(ChronoUnit.SECONDS)
-        );
+        compareDatesWithTruncatedToSeconds(eventToFind.getDate(), foundEvent.getDate());
     }
 
     @Test
@@ -723,15 +720,13 @@ class EventControllerTest extends AbstractTest {
                 objectMapper.readValue(updatedEventDto, EventDto.class)
         );
 
-        User defaultUser = userService.findByLogin(DefaultUserInitializer.DEFAULT_ADMIN_LOGIN);
-
         Assertions.assertEquals(updatedEvent.getId(), createdEvent.getId());
         Assertions.assertTrue(eventService.existsById(createdEvent.getId()));
         Assertions.assertEquals(updatedEvent.getName(), eventUpdateRequestDto.name());
-        Assertions.assertEquals(updatedEvent.getOwner(), defaultUser);
+        Assertions.assertEquals(updatedEvent.getOwner(), createdEvent.getOwner());
         Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
         Assertions.assertEquals(updatedEvent.getOccupiedPlaces(), 0);
-        Assertions.assertEquals(updatedEvent.getDate(), eventUpdateRequestDto.date());
+        compareDatesWithTruncatedToSeconds(updatedEvent.getDate(), eventUpdateRequestDto.date());
         Assertions.assertEquals(updatedEvent.getCost(), eventUpdateRequestDto.cost());
         Assertions.assertEquals(updatedEvent.getDuration(), eventUpdateRequestDto.duration());
         Assertions.assertEquals(updatedEvent.getLocation().getId(), eventUpdateRequestDto.locationId());
@@ -829,7 +824,9 @@ class EventControllerTest extends AbstractTest {
         Assertions.assertEquals(createdEvent.getOwner().getId(), notUpdatedEvent.getOwner().getId());
         Assertions.assertEquals(createdEvent.getMaxPlaces(), notUpdatedEvent.getMaxPlaces());
         Assertions.assertEquals(createdEvent.getOccupiedPlaces(), notUpdatedEvent.getOccupiedPlaces());
-        Assertions.assertEquals(createdEvent.getDate(), notUpdatedEvent.getDate());
+        LocalDateTime firstDate = createdEvent.getDate();
+        LocalDateTime secondDate = notUpdatedEvent.getDate();
+        compareDatesWithTruncatedToSeconds(firstDate, secondDate);
         Assertions.assertEquals(createdEvent.getCost(), notUpdatedEvent.getCost());
         Assertions.assertEquals(createdEvent.getDuration(), notUpdatedEvent.getDuration());
         Assertions.assertEquals(createdEvent.getLocation().getId(), notUpdatedEvent.getLocation().getId());
@@ -1044,17 +1041,13 @@ class EventControllerTest extends AbstractTest {
 
         Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
 
-        org.assertj.core.api.Assertions
-                .assertThat(updatedEvent)
+        assertThat(updatedEvent)
                 .usingRecursiveComparison()
                 .ignoringFields("date")
                 .ignoringFields("maxPlaces")
                 .isEqualTo(createdEvent1);
 
-        Assertions.assertEquals(
-                updatedEvent.getDate().truncatedTo(ChronoUnit.SECONDS),
-                createdEvent1.getDate().truncatedTo(ChronoUnit.SECONDS)
-        );
+        compareDatesWithTruncatedToSeconds(updatedEvent.getDate(), createdEvent1.getDate());
     }
 
     @ParameterizedTest
@@ -1169,17 +1162,13 @@ class EventControllerTest extends AbstractTest {
 
         Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
 
-        org.assertj.core.api.Assertions
-                .assertThat(updatedEvent)
+        assertThat(updatedEvent)
                 .usingRecursiveComparison()
                 .ignoringFields("date")
                 .ignoringFields("maxPlaces")
                 .isEqualTo(createdEvent);
 
-        Assertions.assertEquals(
-                updatedEvent.getDate().truncatedTo(ChronoUnit.SECONDS),
-                createdEvent.getDate().truncatedTo(ChronoUnit.SECONDS)
-        );
+        compareDatesWithTruncatedToSeconds(updatedEvent.getDate(), createdEvent.getDate());
     }
 
     @ParameterizedTest

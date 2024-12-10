@@ -11,6 +11,7 @@ import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundExcept
 import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import dev.vudovenko.eventmanagement.security.authentication.AuthenticationService;
 import dev.vudovenko.eventmanagement.users.domain.User;
+import dev.vudovenko.eventmanagement.users.services.UserService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final LocationService locationService;
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     private final EntityMapper<Event, EventEntity> eventEntityMapper;
 
@@ -122,10 +124,14 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event updateEvent(Long eventId, Event event) {
+        event.setId(eventId);
+        User eventOwner = userService.findByEventId(eventId);
+        event.setOwner(eventOwner);
+
+        checkRightsToDeleteEvent(event);
         checkCorrectnessDate(event);
         checkAvailabilityPlaces(event);
 
-        event.setId(eventId);
         EventEntity createdEvent = eventRepository.save(
                 eventEntityMapper.toEntity(event)
         );

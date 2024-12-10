@@ -3,6 +3,7 @@ package dev.vudovenko.eventmanagement.users.services.impl;
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
+import dev.vudovenko.eventmanagement.users.exceptions.OwnerEventNotFoundException;
 import dev.vudovenko.eventmanagement.users.exceptions.UserIdNotFoundException;
 import dev.vudovenko.eventmanagement.users.repositories.UserRepository;
 import dev.vudovenko.eventmanagement.users.services.UserService;
@@ -48,6 +49,14 @@ public class UserServiceImpl implements UserService {
     public User findById(Long userId) {
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new UserIdNotFoundException(userId));
+
+        return userEntityMapper.toDomain(userEntity);
+    }
+
+    @Override
+    public User findByEventId(Long eventId) {
+        UserEntity userEntity = userRepository.findByEventId(eventId)
+                .orElseThrow(() -> new OwnerEventNotFoundException(eventId));
 
         return userEntityMapper.toDomain(userEntity);
     }

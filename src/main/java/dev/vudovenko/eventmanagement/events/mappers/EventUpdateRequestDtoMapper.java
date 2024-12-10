@@ -26,7 +26,7 @@ public class EventUpdateRequestDtoMapper implements ToDomainMapper<Event, EventU
         return new Event(
                 null,
                 eventCreateRequestDto.name(),
-                authenticationService.getCurrentAuthenticatedUserOrThrow(),
+                null,
                 eventCreateRequestDto.maxPlaces(),
                 0,
                 eventCreateRequestDto.date(),
