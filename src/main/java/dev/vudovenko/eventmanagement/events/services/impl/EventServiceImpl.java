@@ -11,7 +11,6 @@ import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundExcept
 import dev.vudovenko.eventmanagement.locations.services.LocationService;
 import dev.vudovenko.eventmanagement.security.authentication.AuthenticationService;
 import dev.vudovenko.eventmanagement.users.domain.User;
-import dev.vudovenko.eventmanagement.users.services.UserService;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,6 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final LocationService locationService;
     private final AuthenticationService authenticationService;
-    private final UserService userService;
 
     private final EntityMapper<Event, EventEntity> eventEntityMapper;
 
@@ -124,12 +122,13 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event updateEvent(Long eventId, Event event) {
-        initializeFieldsForEventUpdate(eventId, event);
+        Event notUpdatedEvent = findByIdWithOwner(eventId);
+        initializeFieldsForEventUpdate(event, notUpdatedEvent);
 
         checkRightsToManageEvent(event);
         checkCorrectnessDate(event);
         checkAvailabilityLocationPlaces(event);
-
+        checkThatOccupiedSeatsArePlacedInMaximumPlaces(event, notUpdatedEvent);
 
         EventEntity createdEvent = eventRepository.save(
                 eventEntityMapper.toEntity(event)
@@ -138,10 +137,19 @@ public class EventServiceImpl implements EventService {
         return eventEntityMapper.toDomain(createdEvent);
     }
 
-    private void initializeFieldsForEventUpdate(Long eventId, Event event) {
-        event.setId(eventId);
-        Event notUpdatedEvent = findByIdWithOwner(eventId);
+    private void initializeFieldsForEventUpdate(Event event, Event notUpdatedEvent) {
+        event.setId(notUpdatedEvent.getId());
         event.setOwner(notUpdatedEvent.getOwner());
         event.setOccupiedPlaces(notUpdatedEvent.getOccupiedPlaces());
+    }
+
+    private void checkThatOccupiedSeatsArePlacedInMaximumPlaces(Event event, Event notUpdatedEvent) {
+        if (event.getMaxPlaces() < notUpdatedEvent.getOccupiedPlaces()) {
+            throw new EventOccupiedPlacesExceedMaxPlacesException(
+                    notUpdatedEvent.getName(),
+                    notUpdatedEvent.getOccupiedPlaces(),
+                    event.getMaxPlaces()
+            );
+        }
     }
 }

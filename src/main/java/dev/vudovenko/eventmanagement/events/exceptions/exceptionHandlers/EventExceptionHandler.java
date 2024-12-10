@@ -121,4 +121,19 @@ public class EventExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorDto);
     }
+
+    @ExceptionHandler(value = EventOccupiedPlacesExceedMaxPlacesException.class)
+    public ResponseEntity<ErrorMessageResponse> handleEventOccupiedPlacesExceedMaxPlacesException(
+            EventOccupiedPlacesExceedMaxPlacesException e
+    ) {
+        log.error("Got event occupied places exceed maximum capacity exception", e);
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.EVENT_OCCUPIED_PLACES_EXCEEDED_MAXIMUM_CAPACITY.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
 }

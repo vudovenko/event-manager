@@ -56,7 +56,7 @@ public class EventController {
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventDto> getEvent(
-            @NotNull @PathVariable("eventId") Long eventId
+            @PathVariable("eventId") Long eventId
     ) {
         log.info("Get request for get event");
 
@@ -69,7 +69,7 @@ public class EventController {
 
     @PutMapping("/{eventId}")
     public ResponseEntity<EventDto> updateEvent(
-            @NotNull @PathVariable("eventId") Long eventId,
+            @PathVariable("eventId") Long eventId,
             @Valid @RequestBody EventUpdateRequestDto eventUpdateRequestDto
     ) {
         log.info("Get request for update event");
