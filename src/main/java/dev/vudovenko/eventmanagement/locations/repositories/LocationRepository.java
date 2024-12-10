@@ -13,7 +13,8 @@ public interface LocationRepository extends JpaRepository<LocationEntity, Long> 
                     SELECT l.capacity - COALESCE(sum(e.maxPlaces), 0)
                     FROM LocationEntity l
                     LEFT JOIN EventEntity e
-                    ON e.location.id = l.id AND e.id != :eventId
+                    ON e.location.id = l.id
+                    AND (:eventId IS NULL or e.id != :eventId)
                     WHERE l.id = :locationId
                     GROUP BY l.id
                     """

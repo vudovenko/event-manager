@@ -429,7 +429,7 @@ class EventControllerTest extends AbstractTest {
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
                 UserNotEventCreatorException.MESSAGE_TEMPLATE
-                        .formatted(defaultUser.getLogin(), createdEvent.getName())
+                        .formatted(defaultUser.getId(), createdEvent.getId())
         );
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
@@ -725,7 +725,7 @@ class EventControllerTest extends AbstractTest {
         Assertions.assertEquals(updatedEvent.getName(), eventUpdateRequestDto.name());
         Assertions.assertEquals(updatedEvent.getOwner(), createdEvent.getOwner());
         Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
-        Assertions.assertEquals(updatedEvent.getOccupiedPlaces(), 0);
+        Assertions.assertEquals(updatedEvent.getOccupiedPlaces(), createdEvent.getOccupiedPlaces());
         compareDatesWithTruncatedToSeconds(updatedEvent.getDate(), eventUpdateRequestDto.date());
         Assertions.assertEquals(updatedEvent.getCost(), eventUpdateRequestDto.cost());
         Assertions.assertEquals(updatedEvent.getDuration(), eventUpdateRequestDto.duration());
@@ -772,7 +772,7 @@ class EventControllerTest extends AbstractTest {
         Assertions.assertEquals(updatedEvent.getName(), eventUpdateRequestDto.name());
         Assertions.assertEquals(updatedEvent.getOwner(), eventCreator);
         Assertions.assertEquals(updatedEvent.getMaxPlaces(), eventUpdateRequestDto.maxPlaces());
-        Assertions.assertEquals(updatedEvent.getOccupiedPlaces(), 0);
+        Assertions.assertEquals(updatedEvent.getOccupiedPlaces(), eventToUpdate.getOccupiedPlaces());
         Assertions.assertEquals(updatedEvent.getDate(), eventUpdateRequestDto.date());
         Assertions.assertEquals(updatedEvent.getCost(), eventUpdateRequestDto.cost());
         Assertions.assertEquals(updatedEvent.getDuration(), eventUpdateRequestDto.duration());
@@ -843,7 +843,7 @@ class EventControllerTest extends AbstractTest {
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
                 UserNotEventCreatorException.MESSAGE_TEMPLATE
-                        .formatted(defaultUser.getLogin(), createdEvent.getName())
+                        .formatted(defaultUser.getId(), createdEvent.getId())
         );
 
         Assertions.assertNotNull(errorMessageResponse.dateTime());

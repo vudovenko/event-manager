@@ -92,7 +92,7 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(Long eventId) {
         Event event = findByIdWithOwner(eventId);
 
-        checkRightsToDeleteEvent(event);
+        checkRightsToManageEvent(event);
         checkIfEventHasAlreadyBeenCanceled(event);
         checkIfEventHasStarted(event);
 
@@ -101,11 +101,11 @@ public class EventServiceImpl implements EventService {
         eventRepository.save(eventEntityMapper.toEntity(event));
     }
 
-    private void checkRightsToDeleteEvent(Event event) {
+    private void checkRightsToManageEvent(Event event) {
         User currentUser = authenticationService.getCurrentAuthenticatedUserOrThrow();
         if (currentUser.getRole().equals(UserRole.USER)
                 && !event.getOwner().equals(currentUser)) {
-            throw new UserNotEventCreatorException(currentUser.getLogin(), event.getName());
+            throw new UserNotEventCreatorException(currentUser.getId(), event.getId());
         }
     }
 
@@ -124,11 +124,9 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event updateEvent(Long eventId, Event event) {
-        event.setId(eventId);
-        User eventOwner = userService.findByEventId(eventId);
-        event.setOwner(eventOwner);
+        initializeFieldsForEventUpdate(eventId, event);
 
-        checkRightsToDeleteEvent(event);
+        checkRightsToManageEvent(event);
         checkCorrectnessDate(event);
         checkAvailabilityPlaces(event);
 
@@ -137,5 +135,12 @@ public class EventServiceImpl implements EventService {
         );
 
         return eventEntityMapper.toDomain(createdEvent);
+    }
+
+    private void initializeFieldsForEventUpdate(Long eventId, Event event) {
+        event.setId(eventId);
+        Event notUpdatedEvent = findByIdWithOwner(eventId);
+        event.setOwner(notUpdatedEvent.getOwner());
+        event.setOccupiedPlaces(notUpdatedEvent.getOccupiedPlaces());
     }
 }
