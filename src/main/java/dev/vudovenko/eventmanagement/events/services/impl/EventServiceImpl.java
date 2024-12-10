@@ -2,6 +2,7 @@ package dev.vudovenko.eventmanagement.events.services.impl;
 
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
+import dev.vudovenko.eventmanagement.events.dto.EventSearchRequestDto;
 import dev.vudovenko.eventmanagement.events.entity.EventEntity;
 import dev.vudovenko.eventmanagement.events.exceptions.*;
 import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -151,5 +153,10 @@ public class EventServiceImpl implements EventService {
                     event.getMaxPlaces()
             );
         }
+    }
+
+    @Override
+    public List<Event> searchEvents(EventSearchRequestDto eventSearchRequestDto) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }

@@ -5,6 +5,7 @@ import dev.vudovenko.eventmanagement.common.mappers.ToDomainMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
 import dev.vudovenko.eventmanagement.events.dto.EventDto;
+import dev.vudovenko.eventmanagement.events.dto.EventSearchRequestDto;
 import dev.vudovenko.eventmanagement.events.dto.EventUpdateRequestDto;
 import dev.vudovenko.eventmanagement.events.services.EventService;
 import jakarta.validation.Valid;
@@ -14,6 +15,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -80,5 +83,23 @@ public class EventController {
         );
 
         return ResponseEntity.ok(eventDtoMapper.toDto(event));
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<EventDto>> searchEvents(
+            @Valid @RequestBody EventSearchRequestDto eventSearchRequestDto
+    ) {
+        log.info("Get request for search events");
+
+        List<Event> events = eventService.searchEvents(
+                eventSearchRequestDto
+        );
+
+        List<EventDto> eventDtos = events
+                .stream()
+                .map(eventDtoMapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(eventDtos);
     }
 }

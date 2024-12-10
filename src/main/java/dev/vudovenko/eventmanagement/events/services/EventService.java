@@ -1,6 +1,9 @@
 package dev.vudovenko.eventmanagement.events.services;
 
 import dev.vudovenko.eventmanagement.events.domain.Event;
+import dev.vudovenko.eventmanagement.events.dto.EventSearchRequestDto;
+
+import java.util.List;
 
 public interface EventService {
 
@@ -15,4 +18,6 @@ public interface EventService {
     void deleteEvent(Long eventId);
 
     Event updateEvent(Long eventId, Event event);
+
+    List<Event> searchEvents(EventSearchRequestDto eventSearchRequestDto);
 }
