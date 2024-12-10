@@ -34,7 +34,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event createEvent(Event event) {
         checkCorrectnessDate(event);
-        checkAvailabilityPlaces(event);
+        checkAvailabilityLocationPlaces(event);
 
         EventEntity createdEvent = eventRepository.save(
                 eventEntityMapper.toEntity(event)
@@ -49,7 +49,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void checkAvailabilityPlaces(Event event) {
+    private void checkAvailabilityLocationPlaces(Event event) {
         Long locationId = event.getLocation().getId();
         if (!locationService.existsById(locationId)) {
             throw new LocationNotFoundException(locationId);
@@ -128,7 +128,8 @@ public class EventServiceImpl implements EventService {
 
         checkRightsToManageEvent(event);
         checkCorrectnessDate(event);
-        checkAvailabilityPlaces(event);
+        checkAvailabilityLocationPlaces(event);
+
 
         EventEntity createdEvent = eventRepository.save(
                 eventEntityMapper.toEntity(event)

@@ -3,7 +3,6 @@ package dev.vudovenko.eventmanagement.events.mappers;
 import dev.vudovenko.eventmanagement.common.mappers.ToDomainMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventUpdateRequestDto;
-import dev.vudovenko.eventmanagement.events.services.EventService;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
 import lombok.RequiredArgsConstructor;

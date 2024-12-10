@@ -967,16 +967,13 @@ class EventControllerTest extends AbstractTest {
 
         Assertions.assertEquals(
                 errorMessageResponse.message(),
-                ExceptionHandlerMessages.LOCATION_CAPACITY_EXCEEDED.getMessage()
+                ExceptionHandlerMessages.INSUFFICIENT_SEATS.getMessage()
         );
 
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
-                LocationCapacityExceededException.MESSAGE_TEMPLATE.formatted(
-                        locationWithNewCapacity.getName(),
-                        locationWithNewCapacity.getCapacity() - createdEvent2.getMaxPlaces(),
-                        createdEvent1.getName(),
-                        createdEvent1.getMaxPlaces()
+                InsufficientSeatsException.MESSAGE_TEMPLATE.formatted(
+                        locationWithNewCapacity.getCapacity() - createdEvent2.getMaxPlaces()
                 )
         );
 
@@ -1087,7 +1084,7 @@ class EventControllerTest extends AbstractTest {
                                 .content(eventUpdateRequestDtoJson)
                                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(owner))
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -1097,16 +1094,13 @@ class EventControllerTest extends AbstractTest {
 
         Assertions.assertEquals(
                 errorMessageResponse.message(),
-                ExceptionHandlerMessages.LOCATION_CAPACITY_EXCEEDED.getMessage()
+                ExceptionHandlerMessages.INSUFFICIENT_SEATS.getMessage()
         );
 
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
-                LocationCapacityExceededException.MESSAGE_TEMPLATE.formatted(
-                        location.getName(),
-                        location.getCapacity() - createdEvent2.getMaxPlaces(),
-                        createdEvent1.getName(),
-                        createdEvent1.getMaxPlaces()
+                InsufficientSeatsException.MESSAGE_TEMPLATE.formatted(
+                        location.getCapacity() - createdEvent2.getMaxPlaces()
                 )
         );
 
