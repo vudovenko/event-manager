@@ -20,10 +20,10 @@ public record EventSearchRequestDto(
         LocalDateTime dateStartBefore,
 
         @Min(0)
-        Double costMin,
+        Integer costMin,
 
         @Min(0)
-        Double costMax,
+        Integer costMax,
 
         @Min(30)
         Integer durationMin,
@@ -31,7 +31,7 @@ public record EventSearchRequestDto(
         @Min(30)
         Integer durationMax,
 
-        Integer locationId,
+        Long locationId,
 
         EventStatus eventStatus
 ) {
