@@ -1317,7 +1317,7 @@ class EventControllerTest extends AbstractTest {
         );
         Assertions.assertEquals(
                 errorMessageResponse.detailedMessage(),
-                EventNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId)
+                LocationNotFoundException.MESSAGE_TEMPLATE.formatted(nonExistentId)
         );
         Assertions.assertNotNull(errorMessageResponse.dateTime());
         Assertions.assertTrue(
