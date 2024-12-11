@@ -92,7 +92,17 @@ public class EventController {
         log.info("Get request for search events");
 
         List<Event> events = eventService.searchEvents(
-                eventSearchRequestDto
+                eventSearchRequestDto.name(),
+                eventSearchRequestDto.placesMin(),
+                eventSearchRequestDto.placesMax(),
+                eventSearchRequestDto.dateStartAfter(),
+                eventSearchRequestDto.dateStartBefore(),
+                eventSearchRequestDto.costMin(),
+                eventSearchRequestDto.costMax(),
+                eventSearchRequestDto.durationMin(),
+                eventSearchRequestDto.durationMax(),
+                eventSearchRequestDto.locationId(),
+                eventSearchRequestDto.eventStatus()
         );
 
         List<EventDto> eventDtos = events

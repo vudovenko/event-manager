@@ -2,7 +2,6 @@ package dev.vudovenko.eventmanagement.events.services.impl;
 
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
-import dev.vudovenko.eventmanagement.events.dto.EventSearchRequestDto;
 import dev.vudovenko.eventmanagement.events.entity.EventEntity;
 import dev.vudovenko.eventmanagement.events.exceptions.*;
 import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
@@ -156,7 +155,36 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> searchEvents(EventSearchRequestDto eventSearchRequestDto) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public List<Event> searchEvents(
+            String name,
+            Integer placeMin,
+            Integer placeMax,
+            LocalDateTime dateStartAfter,
+            LocalDateTime dateStartBefore,
+            Integer costMin,
+            Integer costMax,
+            Integer durationMin,
+            Integer durationMax,
+            Long locationId,
+            EventStatus eventStatus
+    ) {
+        List<EventEntity> eventEntities = eventRepository.searchEvents(
+                name,
+                placeMin,
+                placeMax,
+                dateStartAfter,
+                dateStartBefore,
+                costMin,
+                costMax,
+                durationMin,
+                durationMax,
+                locationId,
+                eventStatus
+        );
+
+        return eventEntities
+                .stream()
+                .map(eventEntityMapper::toDomain)
+                .toList();
     }
 }

@@ -1,8 +1,9 @@
 package dev.vudovenko.eventmanagement.events.services;
 
 import dev.vudovenko.eventmanagement.events.domain.Event;
-import dev.vudovenko.eventmanagement.events.dto.EventSearchRequestDto;
+import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
@@ -19,5 +20,17 @@ public interface EventService {
 
     Event updateEvent(Long eventId, Event event);
 
-    List<Event> searchEvents(EventSearchRequestDto eventSearchRequestDto);
+    List<Event> searchEvents(
+            String name,
+            Integer placeMin,
+            Integer placeMax,
+            LocalDateTime dateStartAfter,
+            LocalDateTime dateStartBefore,
+            Integer costMin,
+            Integer costMax,
+            Integer durationMin,
+            Integer durationMax,
+            Long locationId,
+            EventStatus eventStatus
+    );
 }

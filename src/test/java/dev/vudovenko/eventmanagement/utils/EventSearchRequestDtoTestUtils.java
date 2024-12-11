@@ -34,14 +34,14 @@ public class EventSearchRequestDtoTestUtils {
     public EventSearchRequestDto getNotValidEventCreateRequestDto() {
         return new EventSearchRequestDto(
                 null,
-                -RandomUtils.getRandomInt(),
-                -RandomUtils.getRandomInt(),
+                -Math.abs(RandomUtils.getRandomInt()),
+                -Math.abs(RandomUtils.getRandomInt()),
                 null,
                 null,
-                -RandomUtils.getRandomInt(),
-                -RandomUtils.getRandomInt(),
-                -RandomUtils.getRandomInt(),
-                -RandomUtils.getRandomInt(),
+                -Math.abs(RandomUtils.getRandomInt()),
+                -Math.abs(RandomUtils.getRandomInt()),
+                -Math.abs(RandomUtils.getRandomInt()),
+                -Math.abs(RandomUtils.getRandomInt()),
                 null,
                 null
         );
