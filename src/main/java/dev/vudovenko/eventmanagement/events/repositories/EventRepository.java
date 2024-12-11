@@ -2,6 +2,7 @@ package dev.vudovenko.eventmanagement.events.repositories;
 
 import dev.vudovenko.eventmanagement.events.entity.EventEntity;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
+import dev.vudovenko.eventmanagement.users.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -52,4 +53,6 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
             @Param("locationId") Long locationId,
             @Param("eventStatus") EventStatus eventStatus
     );
+
+    List<EventEntity> findAllByOwner(UserEntity eventOwner);
 }

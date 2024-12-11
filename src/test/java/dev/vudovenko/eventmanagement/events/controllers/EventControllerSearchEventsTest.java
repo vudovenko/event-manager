@@ -12,7 +12,6 @@ import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
 import dev.vudovenko.eventmanagement.events.services.EventService;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
-import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import dev.vudovenko.eventmanagement.utils.*;
 import org.junit.jupiter.api.Assertions;
@@ -36,8 +35,6 @@ public class EventControllerSearchEventsTest extends AbstractTest {
     private EventService eventService;
     @Autowired
     private EventRepository eventRepository;
-    @Autowired
-    private LocationRepository locationRepository;
     @Autowired
     private EventTestUtils eventTestUtils;
     @Autowired

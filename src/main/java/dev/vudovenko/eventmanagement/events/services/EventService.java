@@ -2,6 +2,7 @@ package dev.vudovenko.eventmanagement.events.services;
 
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
+import dev.vudovenko.eventmanagement.users.domain.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,4 +34,6 @@ public interface EventService {
             Long locationId,
             EventStatus eventStatus
     );
+
+    List<Event> getUserEvents(User user);
 }

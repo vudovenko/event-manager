@@ -8,12 +8,14 @@ import dev.vudovenko.eventmanagement.events.dto.EventDto;
 import dev.vudovenko.eventmanagement.events.dto.EventSearchRequestDto;
 import dev.vudovenko.eventmanagement.events.dto.EventUpdateRequestDto;
 import dev.vudovenko.eventmanagement.events.services.EventService;
+import dev.vudovenko.eventmanagement.users.domain.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -104,6 +106,22 @@ public class EventController {
                 eventSearchRequestDto.locationId(),
                 eventSearchRequestDto.eventStatus()
         );
+
+        List<EventDto> eventDtos = events
+                .stream()
+                .map(eventDtoMapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(eventDtos);
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<EventDto>> getMyEvents(
+            @AuthenticationPrincipal User user
+    ) {
+        log.info("Get request for get my events");
+
+        List<Event> events = eventService.getUserEvents(user);
 
         List<EventDto> eventDtos = events
                 .stream()

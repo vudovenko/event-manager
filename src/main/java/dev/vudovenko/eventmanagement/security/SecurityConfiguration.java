@@ -69,6 +69,8 @@ public class SecurityConfiguration {
                                 .hasAuthority("USER")
                                 .requestMatchers(HttpMethod.DELETE, "/events/*")
                                 .hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.GET, "/events/my")
+                                .hasAnyAuthority("USER")
                                 .requestMatchers(HttpMethod.GET, "/events/*")
                                 .hasAnyAuthority("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.PUT, "/events/*")
