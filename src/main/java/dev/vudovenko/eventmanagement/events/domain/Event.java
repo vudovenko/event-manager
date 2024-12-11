@@ -34,4 +34,8 @@ public class Event {
     private Location location;
 
     private EventStatus status;
+
+    public Event(Long id) {
+        this.id = id;
+    }
 }
