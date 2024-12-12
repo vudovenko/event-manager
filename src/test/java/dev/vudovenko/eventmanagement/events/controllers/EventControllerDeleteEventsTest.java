@@ -145,7 +145,7 @@ public class EventControllerDeleteEventsTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldNotDeleteEventByNonExistentId(UserRole userRole) throws Exception {
         Long nonExistentEventId = Long.MAX_VALUE;
 
@@ -176,7 +176,7 @@ public class EventControllerDeleteEventsTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotDeleteEventThatHasAlreadyStarted(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
 
@@ -228,7 +228,7 @@ public class EventControllerDeleteEventsTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotDeleteEventThatHasAlreadyFinished(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
 
@@ -280,7 +280,7 @@ public class EventControllerDeleteEventsTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotCancelEventThatIsAlreadyCancelled(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
 

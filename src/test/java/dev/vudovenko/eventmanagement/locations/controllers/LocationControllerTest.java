@@ -144,7 +144,7 @@ public class LocationControllerTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldSuccessfullyGetAllLocations(UserRole userRole) throws Exception {
         eventRegistrationRepository.deleteAll();
         eventRepository.deleteAll();
@@ -186,7 +186,7 @@ public class LocationControllerTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldSuccessfullyFindLocationById(UserRole userRole) throws Exception {
         Location locationToFind = locationTestUtils.getCreatedLocation();
 
@@ -218,7 +218,7 @@ public class LocationControllerTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldNotFindLocationByNonExistentId(UserRole userRole) throws Exception {
         Long nonExistentId = Long.MAX_VALUE;
 

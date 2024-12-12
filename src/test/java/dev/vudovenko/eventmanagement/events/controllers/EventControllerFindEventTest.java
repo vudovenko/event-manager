@@ -30,7 +30,7 @@ public class EventControllerFindEventTest extends AbstractTest {
     private DtoMapper<Event, EventDto> eventDtoMapper;
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldSuccessfullyFindEventById(UserRole userRole) throws Exception {
         Event eventToFind = eventTestUtils.getCreatedEvent();
 
@@ -64,7 +64,7 @@ public class EventControllerFindEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldNotFindEventByNonExistentId(UserRole userRole) throws Exception {
         Long nonExistentId = Long.MAX_VALUE;
 

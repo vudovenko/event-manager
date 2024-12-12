@@ -43,7 +43,7 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
     private EventTestUtils eventTestUtils;
 
     @ParameterizedTest
-    @MethodSource("eventStatusesValidForRegisterProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.EventTestDataProviders#eventStatusesValidForRegisterProvider")
     void shouldRegisterForEvent(EventStatus eventStatus) throws Exception {
         User user = userTestUtils.getRegisteredUser();
         Event event = eventTestUtils.getCreatedEvent(eventStatus);
@@ -168,7 +168,7 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("eventStatusesNotValidForRegisterProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.EventTestDataProviders#eventStatusesNotValidForRegisterProvider")
     void shouldNotRegisterForEventWhenEventStatusDoesntAllow(EventStatus eventStatus) throws Exception {
         User user = userTestUtils.getRegisteredUser();
         Event event = eventTestUtils.getCreatedEvent(eventStatus);
@@ -211,7 +211,7 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("eventStatusesValidForRegisterProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.EventTestDataProviders#eventStatusesValidForRegisterProvider")
     void shouldNotRegisterForEventWhenThereAreNoPlacesAtEvent(EventStatus eventStatus) throws Exception {
         User user = userTestUtils.getRegisteredUser();
         Event event = eventTestUtils.getCreatedEvent(10, 10, eventStatus);

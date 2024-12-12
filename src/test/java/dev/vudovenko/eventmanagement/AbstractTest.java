@@ -1,9 +1,7 @@
 package dev.vudovenko.eventmanagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.users.domain.User;
-import dev.vudovenko.eventmanagement.users.services.DefaultUserInitializer;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import dev.vudovenko.eventmanagement.utils.TokenTestUtils;
 import lombok.extern.log4j.Log4j2;
@@ -20,7 +18,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.stream.Stream;
 
 @Log4j2
 @AutoConfigureMockMvc
@@ -67,39 +64,6 @@ public class AbstractTest {
 
     public String getAuthorizationHeader(User user) {
         return "Bearer " + tokenTestUtils.getJwtToken(user);
-    }
-
-    // todo вынести в отдельные класс
-    public static Stream<UserRole> rolesProvider() {
-        return Stream.of(UserRole.ADMIN, UserRole.USER);
-    }
-
-    public static Stream<String> defaultUserLoginsProvider() {
-        return Stream.of(
-                DefaultUserInitializer.DEFAULT_USER_LOGIN,
-                DefaultUserInitializer.DEFAULT_ADMIN_LOGIN
-        );
-    }
-
-    public static Stream<EventStatus> eventStatusesValidForRegisterProvider() {
-        return Stream.of(
-                EventStatus.WAIT_START,
-                EventStatus.STARTED
-        );
-    }
-
-    public static Stream<EventStatus> eventStatusesNotValidForRegisterProvider() {
-        return Stream.of(
-                EventStatus.CANCELLED,
-                EventStatus.FINISHED
-        );
-    }
-
-    public static Stream<EventStatus> eventStatusesNotValidForCancelProvider() {
-        return Stream.of(
-                EventStatus.STARTED,
-                EventStatus.FINISHED
-        );
     }
 
     public static void compareDatesWithTruncatedToSeconds(LocalDateTime firstDate, LocalDateTime secondDate) {

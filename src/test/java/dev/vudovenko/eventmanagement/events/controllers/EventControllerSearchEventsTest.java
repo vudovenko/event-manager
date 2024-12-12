@@ -50,7 +50,7 @@ public class EventControllerSearchEventsTest extends AbstractTest {
     private EventSearchRequestDtoTestUtils eventSearchRequestDtoTestUtils;
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldSearchEvents(UserRole role) throws Exception {
         eventRegistrationRepository.deleteAll();
         eventRepository.deleteAll();
@@ -154,7 +154,7 @@ public class EventControllerSearchEventsTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldFindAllEventsWithEmptyFilter(UserRole role) throws Exception {
         eventRegistrationRepository.deleteAll();
         eventRepository.deleteAll();
@@ -195,7 +195,7 @@ public class EventControllerSearchEventsTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("rolesProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#rolesProvider")
     void shouldNotSearchEventsWhenNotValid(UserRole role) throws Exception {
         EventSearchRequestDto notValidEventCreateRequestDto = eventSearchRequestDtoTestUtils
                 .getNotValidEventCreateRequestDto();

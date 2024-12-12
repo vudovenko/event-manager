@@ -218,7 +218,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldAllowChangingToNewLocationIfCapacityIsSufficient(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
 
@@ -281,7 +281,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotAllowChangingToNewLocationIfCapacityIsInsufficient(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
 
@@ -352,7 +352,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldUpdateEventIfLocationCapacityAccommodatesEventMaxPlaces(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
         Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
@@ -412,7 +412,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotUpdateEventIfLocationCapacityDoesNotAccommodateEventMaxPlaces(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
         Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
@@ -479,7 +479,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldUpdateEventIfMaxPlacesAccommodatesOccupiedPlaces(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
         Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
@@ -530,7 +530,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotUpdateEventIfMaxPlacesDoesNotAccommodateEventOccupiedPlaces(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
         Location location = locationTestUtils.getCreatedLocationWithCapacity(100);
@@ -593,7 +593,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotUpdateEventWhenRequestNotValid(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
         Event createdEvent = eventTestUtils.getCreatedEvent(owner);
@@ -641,7 +641,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotUpdateEventWhenLocationNotExists(String defaultUserLogin) throws Exception {
         Long nonExistentId = Long.MAX_VALUE;
 
@@ -691,7 +691,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotUpdateEventWhenDateEventInPast(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
         Event createdEvent = eventTestUtils.getCreatedEvent(owner);
@@ -738,7 +738,7 @@ public class EventControllerUpdateEventTest extends AbstractTest {
     }
 
     @ParameterizedTest
-    @MethodSource("defaultUserLoginsProvider")
+    @MethodSource("dev.vudovenko.eventmanagement.utils.dataProviders.UserTestDataProviders#defaultUserLoginsProvider")
     void shouldNotUpdateEventWhenDateFormatIsIncorrect(String defaultUserLogin) throws Exception {
         User owner = userService.findByLogin(defaultUserLogin);
         Event createdEvent = eventTestUtils.getCreatedEvent(owner);
