@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ExceptionHandlerMessages {
-
+    // todo вынести в отдельные классы
     ENTITY_NOT_FOUND("Entity not found"),
     VALIDATION_FAILED("Request validation failed"),
     SERVER_ERROR("Server error"),
@@ -22,7 +22,10 @@ public enum ExceptionHandlerMessages {
     EVENT_ALREADY_CANCELLED("Event already cancelled"),
     LOCATION_CAPACITY_EXCEEDED("Location capacity exceeded"),
     EVENT_OCCUPIED_PLACES_EXCEEDED_MAXIMUM_CAPACITY("Event occupied places exceeded maximum capacity"),
-    OWNER_EVENT_NOT_FOUND("The owner for the event has not been found");
+    OWNER_EVENT_NOT_FOUND("The owner for the event has not been found"),
+    EVENT_REGISTRATION_NOT_FOUND("Event registration not found"),
+    EVENT_REGISTRATION_ALREADY_EXISTS("Event registration already exists"),
+    EVENT_STATUS_NOT_ALLOWED_FOR_REGISTRATION("Event status not allowed for registration");
 
 
     private final String message;

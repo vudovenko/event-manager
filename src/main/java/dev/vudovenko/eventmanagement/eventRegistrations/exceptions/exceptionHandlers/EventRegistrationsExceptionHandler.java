@@ -1,0 +1,34 @@
+package dev.vudovenko.eventmanagement.eventRegistrations.exceptions.exceptionHandlers;
+
+
+import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
+import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
+import dev.vudovenko.eventmanagement.eventRegistrations.exceptions.EventRegistrationNotFoundException;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@Log4j2
+@ControllerAdvice
+@Order(Integer.MIN_VALUE)
+public class EventRegistrationsExceptionHandler {
+
+    @ExceptionHandler(value = EventRegistrationNotFoundException.class)
+    public ResponseEntity<ErrorMessageResponse> handleEventRegistrationNotFoundException(
+            EventRegistrationNotFoundException e
+    ) {
+        log.error("Got event registration not found exception", e);
+
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.EVENT_REGISTRATION_NOT_FOUND.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+}

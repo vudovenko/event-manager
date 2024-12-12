@@ -23,53 +23,55 @@ public class EventTestUtils {
     private LocationTestUtils locationTestUtils;
 
     public Event getCreatedEvent() {
-        return eventService.createEvent(
-                new Event(
-                        null,
-                        "event-" + RandomUtils.getRandomInt(),
-                        userTestUtils.getRegisteredUser(),
-                        50,
-                        30,
-                        LocalDateTime.now().plusDays(1),
-                        1200,
-                        60,
-                        locationTestUtils.getCreatedLocation(),
-                        EventStatus.WAIT_START
-                )
-        );
+        return eventService.createEvent(getEvent());
     }
 
     public Event getCreatedEvent(User eventCreator) {
-        return eventService.createEvent(
-                new Event(
-                        null,
-                        "event-" + RandomUtils.getRandomInt(),
-                        eventCreator,
-                        50,
-                        30,
-                        LocalDateTime.now().plusDays(1),
-                        1200,
-                        60,
-                        locationTestUtils.getCreatedLocation(),
-                        EventStatus.WAIT_START
-                )
-        );
+        Event event = getEvent();
+        event.setOwner(eventCreator);
+        return eventService.createEvent(event);
     }
 
-    public Event getCreatedEvent(int occupiedPlaces, int maxPlaces, Location location, User eventCreator) {
-        return eventService.createEvent(
-                new Event(
-                        null,
-                        "event-" + RandomUtils.getRandomInt(),
-                        eventCreator,
-                        maxPlaces,
-                        occupiedPlaces,
-                        LocalDateTime.now().plusDays(1),
-                        1200,
-                        60,
-                        location,
-                        EventStatus.WAIT_START
-                )
+    public Event getCreatedEvent(int occupiedPlaces, int maxPlaces, EventStatus eventStatus) {
+        Event event = getEvent();
+        event.setOccupiedPlaces(occupiedPlaces);
+        event.setMaxPlaces(maxPlaces);
+        event.setStatus(eventStatus);
+        return eventService.createEvent(event);
+    }
+
+    public Event getCreatedEvent(
+            int occupiedPlaces,
+            int maxPlaces,
+            Location location,
+            User eventCreator
+    ) {
+        Event event = getEvent();
+        event.setOwner(eventCreator);
+        event.setOccupiedPlaces(occupiedPlaces);
+        event.setMaxPlaces(maxPlaces);
+        event.setLocation(location);
+        return eventService.createEvent(event);
+    }
+
+    public Event getCreatedEvent(EventStatus status) {
+        Event event = getEvent();
+        event.setStatus(status);
+        return eventService.createEvent(event);
+    }
+
+    private Event getEvent() {
+        return new Event(
+                null,
+                "event-" + RandomUtils.getRandomInt(),
+                userTestUtils.getRegisteredUser(),
+                50,
+                30,
+                LocalDateTime.now().plusDays(1),
+                1200,
+                60,
+                locationTestUtils.getCreatedLocation(),
+                EventStatus.WAIT_START
         );
     }
 

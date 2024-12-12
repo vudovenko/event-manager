@@ -1,6 +1,7 @@
 package dev.vudovenko.eventmanagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.services.DefaultUserInitializer;
 import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
@@ -68,6 +69,7 @@ public class AbstractTest {
         return "Bearer " + tokenTestUtils.getJwtToken(user);
     }
 
+    // todo вынести в отдельный класс
     public static Stream<UserRole> rolesProvider() {
         return Stream.of(UserRole.ADMIN, UserRole.USER);
     }
@@ -76,6 +78,20 @@ public class AbstractTest {
         return Stream.of(
                 DefaultUserInitializer.DEFAULT_USER_LOGIN,
                 DefaultUserInitializer.DEFAULT_ADMIN_LOGIN
+        );
+    }
+
+    public static Stream<EventStatus> eventStatusesValidForRegisterProvider() {
+        return Stream.of(
+                EventStatus.WAIT_START,
+                EventStatus.STARTED
+        );
+    }
+
+    public static Stream<EventStatus> eventStatusesNotValidForRegisterProvider() {
+        return Stream.of(
+                EventStatus.CANCELLED,
+                EventStatus.FINISHED
         );
     }
 
