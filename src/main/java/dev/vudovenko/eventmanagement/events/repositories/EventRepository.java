@@ -68,4 +68,15 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
                     """
     )
     void increaseOccupiedPlaces(Long eventId);
+
+    @Modifying
+    @Transactional
+    @Query(
+            """
+                    UPDATE EventEntity e
+                    SET e.occupiedPlaces = e.occupiedPlaces - 1
+                    WHERE e.id = :eventId
+                    """
+    )
+    void decreaseOccupiedPlaces(Long eventId);
 }

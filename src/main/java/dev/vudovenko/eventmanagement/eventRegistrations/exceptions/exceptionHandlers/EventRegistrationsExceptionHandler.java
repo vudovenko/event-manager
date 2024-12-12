@@ -5,6 +5,7 @@ import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageRe
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
 import dev.vudovenko.eventmanagement.eventRegistrations.exceptions.AlreadyRegisteredForEventException;
 import dev.vudovenko.eventmanagement.eventRegistrations.exceptions.EventRegistrationNotFoundException;
+import dev.vudovenko.eventmanagement.eventRegistrations.exceptions.EventStatusNotAllowedForRegistrationCancellationException;
 import dev.vudovenko.eventmanagement.eventRegistrations.exceptions.EventStatusNotAllowedForRegistrationException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.annotation.Order;
@@ -58,6 +59,22 @@ public class EventRegistrationsExceptionHandler {
 
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
                 ExceptionHandlerMessages.EVENT_STATUS_NOT_ALLOWED_FOR_REGISTRATION.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = EventStatusNotAllowedForRegistrationCancellationException.class)
+    public ResponseEntity<ErrorMessageResponse> handleEventStatusNotAllowedForRegistrationCancellationException(
+            EventStatusNotAllowedForRegistrationCancellationException e
+    ) {
+        log.error("Got event status not allowed for registration cancellation exception", e);
+
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.EVENT_STATUS_NOT_ALLOWED_FOR_CANCELLATION.getMessage(),
                 e.getMessage()
         );
 

@@ -206,4 +206,9 @@ public class EventServiceImpl implements EventService {
     public void increaseOccupiedPlaces(Long eventId) {
         eventRepository.increaseOccupiedPlaces(eventId);
     }
+
+    @Override
+    public void decreaseOccupiedPlaces(Long eventId) {
+        eventRepository.decreaseOccupiedPlaces(eventId);
+    }
 }

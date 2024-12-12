@@ -69,7 +69,7 @@ public class AbstractTest {
         return "Bearer " + tokenTestUtils.getJwtToken(user);
     }
 
-    // todo вынести в отдельный класс
+    // todo вынести в отдельные класс
     public static Stream<UserRole> rolesProvider() {
         return Stream.of(UserRole.ADMIN, UserRole.USER);
     }
@@ -91,6 +91,13 @@ public class AbstractTest {
     public static Stream<EventStatus> eventStatusesNotValidForRegisterProvider() {
         return Stream.of(
                 EventStatus.CANCELLED,
+                EventStatus.FINISHED
+        );
+    }
+
+    public static Stream<EventStatus> eventStatusesNotValidForCancelProvider() {
+        return Stream.of(
+                EventStatus.STARTED,
                 EventStatus.FINISHED
         );
     }

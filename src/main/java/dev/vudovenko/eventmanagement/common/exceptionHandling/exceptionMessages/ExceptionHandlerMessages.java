@@ -25,7 +25,9 @@ public enum ExceptionHandlerMessages {
     OWNER_EVENT_NOT_FOUND("The owner for the event has not been found"),
     EVENT_REGISTRATION_NOT_FOUND("Event registration not found"),
     EVENT_REGISTRATION_ALREADY_EXISTS("Event registration already exists"),
-    EVENT_STATUS_NOT_ALLOWED_FOR_REGISTRATION("Event status not allowed for registration");
+    EVENT_REGISTRATION_ALREADY_CANCELLED("Event registration already cancelled"),
+    EVENT_STATUS_NOT_ALLOWED_FOR_REGISTRATION("Event status not allowed for registration"),
+    EVENT_STATUS_NOT_ALLOWED_FOR_CANCELLATION("Event status not allowed for cancellation"),;
 
 
     private final String message;

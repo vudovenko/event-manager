@@ -10,4 +10,6 @@ public interface EventRegistrationService {
     EventRegistration findByUserIdAndEventId(Long userId, Long eventId);
 
     boolean isUserRegisteredForEvent(Long userId, Long eventId);
+
+    void cancelRegistration(Long eventId, User user);
 }
