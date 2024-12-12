@@ -36,4 +36,6 @@ public interface EventService {
     );
 
     List<Event> getUserEvents(User user);
+
+    void increaseOccupiedPlaces(Long eventId);
 }

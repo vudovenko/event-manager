@@ -4,8 +4,10 @@ import dev.vudovenko.eventmanagement.events.entity.EventEntity;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,4 +57,15 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
     );
 
     List<EventEntity> findAllByOwner(UserEntity eventOwner);
+
+    @Modifying
+    @Transactional
+    @Query(
+            """
+                    UPDATE EventEntity e
+                    SET e.occupiedPlaces = e.occupiedPlaces + 1
+                    WHERE e.id = :eventId
+                    """
+    )
+    void increaseOccupiedPlaces(Long eventId);
 }

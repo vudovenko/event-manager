@@ -3,7 +3,9 @@ package dev.vudovenko.eventmanagement.eventRegistrations.exceptions.exceptionHan
 
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
+import dev.vudovenko.eventmanagement.eventRegistrations.exceptions.AlreadyRegisteredForEventException;
 import dev.vudovenko.eventmanagement.eventRegistrations.exceptions.EventRegistrationNotFoundException;
+import dev.vudovenko.eventmanagement.eventRegistrations.exceptions.EventStatusNotAllowedForRegistrationException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,38 @@ public class EventRegistrationsExceptionHandler {
 
         ErrorMessageResponse errorDto = ErrorMessageResponse.of(
                 ExceptionHandlerMessages.EVENT_REGISTRATION_NOT_FOUND.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = AlreadyRegisteredForEventException.class)
+    public ResponseEntity<ErrorMessageResponse> handleAlreadyRegisteredForEventException(
+            AlreadyRegisteredForEventException e
+    ) {
+        log.error("Got already registered for event exception", e);
+
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.EVENT_REGISTRATION_ALREADY_EXISTS.getMessage(),
+                e.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(value = EventStatusNotAllowedForRegistrationException.class)
+    public ResponseEntity<ErrorMessageResponse> handleEventStatusNotAllowedForRegistrationException(
+            EventStatusNotAllowedForRegistrationException e
+    ) {
+        log.error("Got event status not allowed for registration exception", e);
+
+        ErrorMessageResponse errorDto = ErrorMessageResponse.of(
+                ExceptionHandlerMessages.EVENT_STATUS_NOT_ALLOWED_FOR_REGISTRATION.getMessage(),
                 e.getMessage()
         );
 

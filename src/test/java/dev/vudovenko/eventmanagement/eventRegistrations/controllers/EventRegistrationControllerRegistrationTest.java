@@ -10,6 +10,7 @@ import dev.vudovenko.eventmanagement.eventRegistrations.services.EventRegistrati
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.exceptions.EventNotFoundException;
 import dev.vudovenko.eventmanagement.events.exceptions.InsufficientSeatsException;
+import dev.vudovenko.eventmanagement.events.services.EventService;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.services.DefaultUserInitializer;
@@ -32,6 +33,8 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private EventService eventService;
     @Autowired
     private EventRegistrationService eventRegistrationService;
     @Autowired
@@ -58,6 +61,11 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
 
         Assertions.assertEquals(user, eventRegistration.getUser());
         Assertions.assertEquals(event, eventRegistration.getEvent());
+        Event updatedEvent = eventService.findById(event.getId());
+        Assertions.assertEquals(
+                updatedEvent.getOccupiedPlaces(),
+                event.getOccupiedPlaces() + 1
+        );
     }
 
     @Test
@@ -137,6 +145,11 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
                 .getContentAsString();
 
         Assertions.assertTrue(eventRegistrationService.isUserRegisteredForEvent(user.getId(), event.getId()));
+        Event updatedEvent = eventService.findById(event.getId());
+        Assertions.assertEquals(
+                updatedEvent.getOccupiedPlaces(),
+                event.getOccupiedPlaces() + 1
+        );
 
         ErrorMessageResponse errorMessageResponse = objectMapper
                 .readValue(errorMessageResponseJson, ErrorMessageResponse.class);
@@ -156,7 +169,7 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
 
     @ParameterizedTest
     @MethodSource("eventStatusesNotValidForRegisterProvider")
-    void shouldNotRegisterForEventWhenEventStatusIsFinished(EventStatus eventStatus) throws Exception {
+    void shouldNotRegisterForEventWhenEventStatusDoesntAllow(EventStatus eventStatus) throws Exception {
         User user = userTestUtils.getRegisteredUser();
         Event event = eventTestUtils.getCreatedEvent(eventStatus);
 
@@ -190,6 +203,11 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
                 eventRegistrationService
                         .isUserRegisteredForEvent(user.getId(), event.getId())
         );
+        Event updatedEvent = eventService.findById(event.getId());
+        Assertions.assertEquals(
+                updatedEvent.getOccupiedPlaces(),
+                event.getOccupiedPlaces()
+        );
     }
 
     @ParameterizedTest
@@ -210,6 +228,12 @@ class EventRegistrationControllerRegistrationTest extends AbstractTest {
 
         Assertions.assertFalse(eventRegistrationService
                 .isUserRegisteredForEvent(user.getId(), event.getId()));
+
+        Event updatedEvent = eventService.findById(event.getId());
+        Assertions.assertEquals(
+                updatedEvent.getOccupiedPlaces(),
+                event.getOccupiedPlaces()
+        );
 
         ErrorMessageResponse errorMessageResponse = objectMapper
                 .readValue(errorMessageResponseJson, ErrorMessageResponse.class);

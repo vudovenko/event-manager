@@ -201,4 +201,9 @@ public class EventServiceImpl implements EventService {
                 .map(eventEntityMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public void increaseOccupiedPlaces(Long eventId) {
+        eventRepository.increaseOccupiedPlaces(eventId);
+    }
 }
