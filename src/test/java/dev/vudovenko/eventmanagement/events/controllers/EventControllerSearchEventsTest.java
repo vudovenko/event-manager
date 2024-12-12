@@ -5,6 +5,7 @@ import dev.vudovenko.eventmanagement.AbstractTest;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
 import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
+import dev.vudovenko.eventmanagement.eventRegistrations.repositories.EventRegistrationRepository;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventDto;
 import dev.vudovenko.eventmanagement.events.dto.EventSearchRequestDto;
@@ -36,6 +37,8 @@ public class EventControllerSearchEventsTest extends AbstractTest {
     @Autowired
     private EventRepository eventRepository;
     @Autowired
+    private EventRegistrationRepository eventRegistrationRepository;
+    @Autowired
     private EventTestUtils eventTestUtils;
     @Autowired
     private UserTestUtils userTestUtils;
@@ -49,6 +52,7 @@ public class EventControllerSearchEventsTest extends AbstractTest {
     @ParameterizedTest
     @MethodSource("rolesProvider")
     void shouldSearchEvents(UserRole role) throws Exception {
+        eventRegistrationRepository.deleteAll();
         eventRepository.deleteAll();
 
         IntStream.range(0, 10)
@@ -152,6 +156,7 @@ public class EventControllerSearchEventsTest extends AbstractTest {
     @ParameterizedTest
     @MethodSource("rolesProvider")
     void shouldFindAllEventsWithEmptyFilter(UserRole role) throws Exception {
+        eventRegistrationRepository.deleteAll();
         eventRepository.deleteAll();
 
         int numberEvents = 100;

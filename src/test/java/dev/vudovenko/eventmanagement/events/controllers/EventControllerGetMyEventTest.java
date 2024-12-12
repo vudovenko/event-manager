@@ -3,6 +3,7 @@ package dev.vudovenko.eventmanagement.events.controllers;
 import com.fasterxml.jackson.core.type.TypeReference;
 import dev.vudovenko.eventmanagement.AbstractTest;
 import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
+import dev.vudovenko.eventmanagement.eventRegistrations.repositories.EventRegistrationRepository;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventDto;
 import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
@@ -31,12 +32,15 @@ public class EventControllerGetMyEventTest extends AbstractTest {
     private EventRepository eventRepository;
     @Autowired
     private EventTestUtils eventTestUtils;
+    @Autowired
+    private EventRegistrationRepository eventRegistrationRepository;
 
     @Autowired
     private DtoMapper<Event, EventDto> eventDtoMapper;
 
     @Test
     void shouldGetMyEvent() throws Exception {
+        eventRegistrationRepository.deleteAll();
         eventRepository.deleteAll();
 
         IntStream.range(0, 20)

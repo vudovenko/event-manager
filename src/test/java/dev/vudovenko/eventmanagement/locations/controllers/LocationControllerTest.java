@@ -5,6 +5,7 @@ import dev.vudovenko.eventmanagement.AbstractTest;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.dto.ErrorMessageResponse;
 import dev.vudovenko.eventmanagement.common.exceptionHandling.exceptionMessages.ExceptionHandlerMessages;
 import dev.vudovenko.eventmanagement.common.mappers.DtoMapper;
+import dev.vudovenko.eventmanagement.eventRegistrations.repositories.EventRegistrationRepository;
 import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.dto.LocationDto;
@@ -42,6 +43,8 @@ public class LocationControllerTest extends AbstractTest {
     private LocationTestUtils locationTestUtils;
     @Autowired
     private EventRepository eventRepository;
+    @Autowired
+    private EventRegistrationRepository eventRegistrationRepository;
     @Autowired
     private DtoMapper<Location, LocationDto> locationDtoMapper;
 
@@ -143,6 +146,7 @@ public class LocationControllerTest extends AbstractTest {
     @ParameterizedTest
     @MethodSource("rolesProvider")
     void shouldSuccessfullyGetAllLocations(UserRole userRole) throws Exception {
+        eventRegistrationRepository.deleteAll();
         eventRepository.deleteAll();
         locationRepository.deleteAll();
         Set<LocationDto> locationDtoSet = new HashSet<>();
