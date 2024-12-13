@@ -40,4 +40,6 @@ public interface EventService {
     void increaseOccupiedPlaces(Long eventId);
 
     void decreaseOccupiedPlaces(Long eventId);
+
+    void updateEventStatuses();
 }

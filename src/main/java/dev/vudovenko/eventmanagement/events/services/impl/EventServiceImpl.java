@@ -211,4 +211,12 @@ public class EventServiceImpl implements EventService {
     public void decreaseOccupiedPlaces(Long eventId) {
         eventRepository.decreaseOccupiedPlaces(eventId);
     }
+
+    @Transactional
+    @Override
+    public void updateEventStatuses() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        eventRepository.updateEventStatusWhenItStarted(currentTime);
+        eventRepository.updateEventStatusWhenItIsOver(currentTime);
+    }
 }

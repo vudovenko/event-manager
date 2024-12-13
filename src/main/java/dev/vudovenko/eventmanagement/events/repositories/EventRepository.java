@@ -79,4 +79,29 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
                     """
     )
     void decreaseOccupiedPlaces(Long eventId);
+
+    @Modifying
+    @Transactional
+    @Query(
+            """
+                    UPDATE EventEntity e
+                    SET e.status = dev.vudovenko.eventmanagement.events.statuses.EventStatus.STARTED
+                    WHERE e.date <= CAST(:currentTime AS timestamp)
+                    AND e.status = dev.vudovenko.eventmanagement.events.statuses.EventStatus.WAIT_START
+                    """
+    )
+    void updateEventStatusWhenItStarted(LocalDateTime currentTime);
+
+    @Modifying
+    @Transactional
+    @Query(
+            value = """
+                    UPDATE events e
+                    SET status = 'FINISHED'
+                    WHERE (e.date + (e.duration * INTERVAL '1 minute')) <= CAST(:currentTime AS timestamp)
+                    AND e.status = 'STARTED'
+                    """,
+            nativeQuery = true
+    )
+    void updateEventStatusWhenItIsOver(LocalDateTime currentTime);
 }

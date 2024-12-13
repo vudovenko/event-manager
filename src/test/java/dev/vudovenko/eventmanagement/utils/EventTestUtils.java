@@ -1,8 +1,11 @@
 package dev.vudovenko.eventmanagement.utils;
 
+import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.dto.EventCreateRequestDto;
 import dev.vudovenko.eventmanagement.events.dto.EventUpdateRequestDto;
+import dev.vudovenko.eventmanagement.events.entity.EventEntity;
+import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
 import dev.vudovenko.eventmanagement.events.services.EventService;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
@@ -18,9 +21,13 @@ public class EventTestUtils {
     @Autowired
     private EventService eventService;
     @Autowired
+    private EventRepository eventRepository;
+    @Autowired
     private UserTestUtils userTestUtils;
     @Autowired
     private LocationTestUtils locationTestUtils;
+    @Autowired
+    private EntityMapper<Event, EventEntity> eventEntityMapper;
 
     public Event getCreatedEvent() {
         return eventService.createEvent(getEvent());
@@ -52,6 +59,15 @@ public class EventTestUtils {
         event.setMaxPlaces(maxPlaces);
         event.setLocation(location);
         return eventService.createEvent(event);
+    }
+
+    public EventEntity getCreatedEvent(EventStatus status, Integer duration, LocalDateTime startDate) {
+        Event event = getEvent();
+        event.setStatus(status);
+        event.setDuration(duration);
+        event.setDate(startDate);
+
+        return eventRepository.save(eventEntityMapper.toEntity(event));
     }
 
     public Event getCreatedEvent(EventStatus status) {

@@ -34,6 +34,9 @@ logging:
   pattern:
     console: "%C{1.} [%-5level] %d{yyyy-MM-dd HH:mm:ss} [%t] - %msg%n"
 
+scheduler:
+  enabled: false
+
 springdoc:
   swagger-ui:
     url: /event-manager-openapi.yaml
