@@ -36,6 +36,11 @@ logging:
 
 scheduler:
   enabled: true
+  event:
+    statuses:
+      ISO: "PT01M"
+
+
 
 springdoc:
   swagger-ui:
