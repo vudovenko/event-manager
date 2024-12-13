@@ -31,6 +31,7 @@ import org.springframework.http.HttpHeaders;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -191,6 +192,7 @@ public class EventControllerDeleteEventsTest extends AbstractTest {
                         1200,
                         60,
                         locationTestUtils.getCreatedLocationEntity(),
+                        Collections.emptySet(),
                         EventStatus.STARTED
                 )
         );
@@ -243,6 +245,7 @@ public class EventControllerDeleteEventsTest extends AbstractTest {
                         1200,
                         60,
                         locationTestUtils.getCreatedLocationEntity(),
+                        Collections.emptySet(),
                         EventStatus.FINISHED
                 )
         );
@@ -295,6 +298,7 @@ public class EventControllerDeleteEventsTest extends AbstractTest {
                         1200,
                         60,
                         locationTestUtils.getCreatedLocationEntity(),
+                        Collections.emptySet(),
                         EventStatus.CANCELLED
                 )
         );

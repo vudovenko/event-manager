@@ -37,6 +37,7 @@ public class EventEntityMapper implements EntityMapper<Event, EventEntity> {
                 event.getCost(),
                 event.getDuration(),
                 locationEntityMapper.toEntity(event.getLocation()),
+                null,
                 event.getStatus()
         );
     }

@@ -1,5 +1,6 @@
 package dev.vudovenko.eventmanagement.events.entity;
 
+import dev.vudovenko.eventmanagement.eventRegistrations.entities.EventRegistrationEntity;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
 import dev.vudovenko.eventmanagement.locations.entity.LocationEntity;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
@@ -7,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -49,6 +51,10 @@ public class EventEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private LocationEntity location;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    private Set<EventRegistrationEntity> eventRegistrationEntity;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

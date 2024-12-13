@@ -7,17 +7,23 @@ import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.entity.EventEntity;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
-import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class EventRegistrationEntityMapper implements EntityMapper<EventRegistration, EventRegistrationEntity> {
 
     private final EntityMapper<User, UserEntity> userEntityMapper;
     private final EntityMapper<Event, EventEntity> eventEntityMapper;
 
+    public EventRegistrationEntityMapper(
+            EntityMapper<User, UserEntity> userEntityMapper,
+            @Lazy EntityMapper<Event, EventEntity> eventEntityMapper
+    ) {
+        this.userEntityMapper = userEntityMapper;
+        this.eventEntityMapper = eventEntityMapper;
+    }
 
     @Override
     public EventRegistrationEntity toEntity(EventRegistration eventRegistration) {
