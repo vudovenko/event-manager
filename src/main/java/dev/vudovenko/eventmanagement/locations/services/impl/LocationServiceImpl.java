@@ -3,10 +3,10 @@ package dev.vudovenko.eventmanagement.locations.services.impl;
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.locations.domain.Location;
 import dev.vudovenko.eventmanagement.locations.entity.LocationEntity;
-import dev.vudovenko.eventmanagement.locations.exceptions.LocationCapacityIsLowerThanItWasException;
 import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
 import dev.vudovenko.eventmanagement.locations.repositories.LocationRepository;
 import dev.vudovenko.eventmanagement.locations.services.LocationService;
+import dev.vudovenko.eventmanagement.locations.services.validations.LocationValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +18,9 @@ import java.util.Optional;
 public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
+
+    private final LocationValidationService locationValidationService;
+
     private final EntityMapper<Location, LocationEntity> locationEntityMapper;
 
     @Override
@@ -58,7 +61,7 @@ public class LocationServiceImpl implements LocationService {
                 locationEntityOptional
                         .orElseThrow(() -> new LocationNotFoundException(id))
         );
-        checkCapacityConstraint(locationFromDb, locationToUpdate);
+        locationValidationService.checkCapacityConstraint(locationFromDb, locationToUpdate);
 
         locationToUpdate.setId(id);
         LocationEntity updatedLocationEntity = locationRepository.save(
@@ -66,15 +69,6 @@ public class LocationServiceImpl implements LocationService {
         );
 
         return locationEntityMapper.toDomain(updatedLocationEntity);
-    }
-
-    private static void checkCapacityConstraint(Location oldLocation, Location locationToUpdate) {
-        if (locationToUpdate.getCapacity() < oldLocation.getCapacity()) {
-            throw new LocationCapacityIsLowerThanItWasException(
-                    oldLocation.getCapacity(),
-                    locationToUpdate.getCapacity()
-            );
-        }
     }
 
     @Override

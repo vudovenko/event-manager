@@ -3,16 +3,13 @@ package dev.vudovenko.eventmanagement.events.services.impl;
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.entity.EventEntity;
-import dev.vudovenko.eventmanagement.events.exceptions.*;
+import dev.vudovenko.eventmanagement.events.exceptions.EventNotFoundException;
 import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
 import dev.vudovenko.eventmanagement.events.services.EventService;
+import dev.vudovenko.eventmanagement.events.services.validations.EventValidationService;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
-import dev.vudovenko.eventmanagement.locations.exceptions.LocationNotFoundException;
-import dev.vudovenko.eventmanagement.locations.services.LocationService;
-import dev.vudovenko.eventmanagement.security.authentication.AuthenticationService;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
-import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +22,8 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final LocationService locationService;
-    private final AuthenticationService authenticationService;
+
+    private final EventValidationService eventValidationService;
 
     private final EntityMapper<Event, EventEntity> eventEntityMapper;
     private final EntityMapper<User, UserEntity> userEntityMapper;
@@ -34,37 +31,14 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public Event createEvent(Event event) {
-        checkCorrectnessDate(event);
-        checkAvailabilityLocationPlaces(event);
+        eventValidationService.checkCorrectnessDate(event);
+        eventValidationService.checkAvailabilityLocationPlaces(event);
 
         EventEntity createdEvent = eventRepository.save(
                 eventEntityMapper.toEntity(event)
         );
 
         return eventEntityMapper.toDomain(createdEvent);
-    }
-
-    private static void checkCorrectnessDate(Event event) {
-        if (event.getDate().isBefore(LocalDateTime.now())) {
-            throw new DateEventInPastException(event.getDate());
-        }
-    }
-
-    private void checkAvailabilityLocationPlaces(Event event) {
-        Long locationId = event.getLocation().getId();
-        if (!locationService.existsById(locationId)) {
-            throw new LocationNotFoundException(locationId);
-        }
-
-        Integer availablePlaces = locationService
-                .getNumberAvailableSeatsWithoutTakingIntoAccountEvent(
-                        locationId,
-                        event.getId()
-                );
-
-        if (event.getMaxPlaces() > availablePlaces) {
-            throw new InsufficientSeatsException(availablePlaces);
-        }
     }
 
     @Override
@@ -93,33 +67,13 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(Long eventId) {
         Event event = findByIdWithOwner(eventId);
 
-        checkRightsToManageEvent(event);
-        checkIfEventHasAlreadyBeenCanceled(event);
-        checkIfEventHasStarted(event);
+        eventValidationService.checkRightsToManageEvent(event);
+        eventValidationService.checkIfEventHasAlreadyBeenCanceled(event);
+        eventValidationService.checkIfEventHasStarted(event);
 
         event.setStatus(EventStatus.CANCELLED);
 
         eventRepository.save(eventEntityMapper.toEntity(event));
-    }
-
-    private void checkRightsToManageEvent(Event event) {
-        User currentUser = authenticationService.getCurrentAuthenticatedUserOrThrow();
-        if (currentUser.getRole().equals(UserRole.USER)
-                && !event.getOwner().equals(currentUser)) {
-            throw new UserNotEventCreatorException(currentUser.getId(), event.getId());
-        }
-    }
-
-    private static void checkIfEventHasAlreadyBeenCanceled(Event event) {
-        if (event.getStatus().equals(EventStatus.CANCELLED)) {
-            throw new EventAlreadyCancelledException(event.getName());
-        }
-    }
-
-    private static void checkIfEventHasStarted(Event event) {
-        if (!event.getStatus().equals(EventStatus.WAIT_START)) {
-            throw new CannotDeleteStartedEventException(event.getName(), event.getDate());
-        }
     }
 
     @Transactional
@@ -128,10 +82,10 @@ public class EventServiceImpl implements EventService {
         Event notUpdatedEvent = findByIdWithOwner(eventId);
         initializeFieldsForEventUpdate(event, notUpdatedEvent);
 
-        checkRightsToManageEvent(event);
-        checkCorrectnessDate(event);
-        checkAvailabilityLocationPlaces(event);
-        checkThatOccupiedSeatsArePlacedInMaximumPlaces(event, notUpdatedEvent);
+        eventValidationService.checkRightsToManageEvent(event);
+        eventValidationService.checkCorrectnessDate(event);
+        eventValidationService.checkAvailabilityLocationPlaces(event);
+        eventValidationService.checkThatOccupiedSeatsArePlacedInMaximumPlaces(event, notUpdatedEvent);
 
         EventEntity createdEvent = eventRepository.save(
                 eventEntityMapper.toEntity(event)
@@ -144,16 +98,6 @@ public class EventServiceImpl implements EventService {
         event.setId(notUpdatedEvent.getId());
         event.setOwner(notUpdatedEvent.getOwner());
         event.setOccupiedPlaces(notUpdatedEvent.getOccupiedPlaces());
-    }
-
-    private void checkThatOccupiedSeatsArePlacedInMaximumPlaces(Event event, Event notUpdatedEvent) {
-        if (event.getMaxPlaces() < notUpdatedEvent.getOccupiedPlaces()) {
-            throw new EventOccupiedPlacesExceedMaxPlacesException(
-                    notUpdatedEvent.getName(),
-                    notUpdatedEvent.getOccupiedPlaces(),
-                    event.getMaxPlaces()
-            );
-        }
     }
 
     @Override
@@ -202,11 +146,13 @@ public class EventServiceImpl implements EventService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public void increaseOccupiedPlaces(Long eventId) {
         eventRepository.increaseOccupiedPlaces(eventId);
     }
 
+    @Transactional
     @Override
     public void decreaseOccupiedPlaces(Long eventId) {
         eventRepository.decreaseOccupiedPlaces(eventId);
