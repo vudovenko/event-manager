@@ -1,8 +1,10 @@
 package dev.vudovenko.eventmanagement.events.changes.dto;
 
+import java.time.LocalDateTime;
+
 public record FieldChangeDateTime(
 
-        String oldField,
-        String newField
+        LocalDateTime oldField,
+        LocalDateTime newField
 ) {
 }

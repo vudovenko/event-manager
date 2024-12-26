@@ -2,7 +2,7 @@ package dev.vudovenko.eventmanagement.events.changes.dto;
 
 import java.util.List;
 
-public record EventChangeDTO(
+public record EventChangeDto(
 
         Long eventId,
         Long modifiedBy,
@@ -12,8 +12,8 @@ public record EventChangeDTO(
         FieldChangeDateTime date,
         FieldChangeInteger cost,
         FieldChangeInteger duration,
-        FieldChangeInteger locationId,
+        FieldChangeLong locationId,
         FieldChangeStatus status,
-        List<Integer> participants
+        List<Long> participants
 ) {
 }

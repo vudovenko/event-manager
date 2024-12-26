@@ -1,6 +1,6 @@
 package dev.vudovenko.eventmanagement.events.changes.config;
 
-import dev.vudovenko.eventmanagement.events.changes.dto.EventChangeDTO;
+import dev.vudovenko.eventmanagement.events.changes.dto.EventChangeDto;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.ssl.DefaultSslBundleRegistry;
 import org.springframework.context.annotation.Bean;
@@ -21,14 +21,14 @@ public class KafkaConfig {
      * @return KafkaTemplate для отправки сообщений
      */
     @Bean
-    public KafkaTemplate<Long, EventChangeDTO> kafkaTemplate(
+    public KafkaTemplate<Long, EventChangeDto> kafkaTemplate(
             KafkaProperties kafkaProperties
     ) {
         Map<String, Object> producerProperties = kafkaProperties.buildProducerProperties(
                 new DefaultSslBundleRegistry()
         );
 
-        ProducerFactory<Long, EventChangeDTO> producerFactory =
+        ProducerFactory<Long, EventChangeDto> producerFactory =
                 new DefaultKafkaProducerFactory<>(producerProperties);
 
         return new KafkaTemplate<>(producerFactory);
