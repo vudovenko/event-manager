@@ -1,5 +1,6 @@
 package dev.vudovenko.eventmanagement.security.jwt;
 
+import dev.vudovenko.eventmanagement.users.userRoles.UserRole;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,13 +23,14 @@ public class JwtTokenManager {
         this.expirationTime = expirationTime;
     }
 
-    public String generateToken(String login) {
+    public String generateToken(String login, UserRole role) {
         return Jwts
                 .builder()
                 .subject(login)
                 .signWith(key)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .claim("role", role.name())
                 .compact();
     }
 

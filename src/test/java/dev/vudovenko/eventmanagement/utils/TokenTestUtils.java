@@ -20,13 +20,16 @@ public class TokenTestUtils {
 
         return switch (userRole) {
             case ADMIN -> jwtTokenManager.
-                    generateToken(DefaultUserInitializer.DEFAULT_ADMIN_LOGIN);
+                    generateToken(DefaultUserInitializer.DEFAULT_ADMIN_LOGIN, UserRole.ADMIN);
             case USER -> jwtTokenManager
-                    .generateToken(DefaultUserInitializer.DEFAULT_USER_LOGIN);
+                    .generateToken(DefaultUserInitializer.DEFAULT_USER_LOGIN, UserRole.USER);
         };
     }
 
     public String getJwtToken(User user) {
-        return jwtTokenManager.generateToken(user.getLogin());
+        return jwtTokenManager.generateToken(
+                user.getLogin(),
+                user.getRole()
+        );
     }
 }
