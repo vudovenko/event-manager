@@ -77,26 +77,50 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
     )
     void decreaseOccupiedPlaces(Long eventId);
 
-    @Modifying
     @Query(
-            """
-                    UPDATE EventEntity e
-                    SET e.status = dev.vudovenko.eventmanagement.events.statuses.EventStatus.STARTED
+            value = """
+                    UPDATE events e
+                    SET status = 'STARTED'
                     WHERE e.date <= CAST(:currentTime AS timestamp)
-                    AND e.status = dev.vudovenko.eventmanagement.events.statuses.EventStatus.WAIT_START
-                    """
+                    AND e.status = 'WAIT_START'
+                    RETURNING e.*
+                    """,
+            nativeQuery = true
     )
-    void updateEventStatusWhenItStarted(LocalDateTime currentTime);
+    List<EventEntity> updateEventStatusWhenItStarted(LocalDateTime currentTime);
 
-    @Modifying
+
+    List<EventEntity> findAllByDateLessThanEqualAndStatus(LocalDateTime currentTime, EventStatus status);
+
     @Query(
             value = """
                     UPDATE events e
                     SET status = 'FINISHED'
                     WHERE (e.date + (e.duration * INTERVAL '1 minute')) <= CAST(:currentTime AS timestamp)
                     AND e.status = 'STARTED'
+                    RETURNING e.*
                     """,
             nativeQuery = true
     )
-    void updateEventStatusWhenItIsOver(LocalDateTime currentTime);
+    List<EventEntity> updateEventStatusWhenItIsOver(LocalDateTime currentTime);
+
+    @Query(
+            value = """
+                    SELECT *
+                    FROM events e
+                    WHERE (e.date + (e.duration * INTERVAL '1 minute')) <= CAST(:currentTime AS timestamp)
+                    AND e.status = 'STARTED'
+                    """,
+            nativeQuery = true
+    )
+    List<EventEntity> findAllEventsToFinish(LocalDateTime currentTime);
+
+    @Query(
+            """
+                    SELECT eReg.user.id
+                    FROM EventRegistrationEntity eReg
+                    WHERE eReg.event.id = :eventId
+                    """
+    )
+    List<Long> getEventParticipants(@Param("eventId") Long eventId);
 }

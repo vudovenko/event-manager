@@ -21,6 +21,8 @@ public interface EventService {
 
     Event updateEvent(Long eventId, Event event);
 
+    List<Long> getEventParticipants(Long eventId);
+
     List<Event> searchEvents(
             String name,
             Integer placeMin,

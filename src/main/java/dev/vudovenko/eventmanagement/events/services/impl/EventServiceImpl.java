@@ -1,6 +1,8 @@
 package dev.vudovenko.eventmanagement.events.services.impl;
 
 import dev.vudovenko.eventmanagement.common.mappers.EntityMapper;
+import dev.vudovenko.eventmanagement.events.changes.mappers.EventChangeDtoMapper;
+import dev.vudovenko.eventmanagement.events.changes.senders.EventChangeSender;
 import dev.vudovenko.eventmanagement.events.domain.Event;
 import dev.vudovenko.eventmanagement.events.entity.EventEntity;
 import dev.vudovenko.eventmanagement.events.exceptions.EventNotFoundException;
@@ -8,6 +10,7 @@ import dev.vudovenko.eventmanagement.events.repositories.EventRepository;
 import dev.vudovenko.eventmanagement.events.services.EventService;
 import dev.vudovenko.eventmanagement.events.services.validations.EventValidationService;
 import dev.vudovenko.eventmanagement.events.statuses.EventStatus;
+import dev.vudovenko.eventmanagement.security.authentication.AuthenticationService;
 import dev.vudovenko.eventmanagement.users.domain.User;
 import dev.vudovenko.eventmanagement.users.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +24,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    private final EventRepository eventRepository;
-
     private final EventValidationService eventValidationService;
+    private final AuthenticationService authenticationService;
+
+    private final EventChangeSender eventChangeSender;
+
+    private final EventRepository eventRepository;
 
     private final EntityMapper<Event, EventEntity> eventEntityMapper;
     private final EntityMapper<User, UserEntity> userEntityMapper;
+
+    private final EventChangeDtoMapper eventChangeDtoMapper;
 
     @Transactional
     @Override
@@ -91,6 +99,15 @@ public class EventServiceImpl implements EventService {
                 eventEntityMapper.toEntity(event)
         );
 
+        eventChangeSender.sendEvent(
+                eventChangeDtoMapper.toDto(
+                        notUpdatedEvent,
+                        event,
+                        authenticationService.getCurrentAuthenticatedUserOrThrow().getId(),
+                        getEventParticipants(eventId)
+                )
+        );
+
         return eventEntityMapper.toDomain(createdEvent);
     }
 
@@ -98,6 +115,11 @@ public class EventServiceImpl implements EventService {
         event.setId(notUpdatedEvent.getId());
         event.setOwner(notUpdatedEvent.getOwner());
         event.setOccupiedPlaces(notUpdatedEvent.getOccupiedPlaces());
+    }
+
+    @Override
+    public List<Long> getEventParticipants(Long eventId) {
+        return eventRepository.getEventParticipants(eventId);
     }
 
     @Override
@@ -162,7 +184,50 @@ public class EventServiceImpl implements EventService {
     @Override
     public void updateEventStatuses() {
         LocalDateTime currentTime = LocalDateTime.now();
-        eventRepository.updateEventStatusWhenItStarted(currentTime);
-        eventRepository.updateEventStatusWhenItIsOver(currentTime);
+        List<EventEntity> startedEvents = eventRepository
+                .findAllByDateLessThanEqualAndStatus(currentTime, EventStatus.WAIT_START);
+        startedEvents.forEach(
+                eventEntity -> {
+                    eventEntity.setStatus(EventStatus.STARTED);
+                    eventRepository.save(eventEntity);
+                }
+        );
+        sendEventStatusChangesToKafka(
+                startedEvents
+                        .stream()
+                        .map(eventEntityMapper::toDomain)
+                        .toList(),
+                EventStatus.WAIT_START
+        );
+
+        List<EventEntity> finishedEvents = eventRepository.findAllEventsToFinish(currentTime);
+        finishedEvents.forEach(
+                eventEntity -> {
+                    eventEntity.setStatus(EventStatus.FINISHED);
+                    eventRepository.save(eventEntity);
+                }
+        );
+        sendEventStatusChangesToKafka(
+                finishedEvents
+                        .stream()
+                        .map(eventEntityMapper::toDomain)
+                        .toList(),
+                EventStatus.STARTED
+        );
+    }
+
+    private void sendEventStatusChangesToKafka(List<Event> events, EventStatus oldStatus) {
+        events.forEach(
+                event -> {
+                    eventChangeSender.sendEvent(
+                            eventChangeDtoMapper.toDto(
+                                    event,
+                                    oldStatus,
+                                    event.getOwner().getId(),
+                                    getEventParticipants(event.getId())
+                            )
+                    );
+                }
+        );
     }
 }
