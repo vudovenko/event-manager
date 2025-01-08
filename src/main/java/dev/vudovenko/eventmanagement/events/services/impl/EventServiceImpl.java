@@ -223,7 +223,6 @@ public class EventServiceImpl implements EventService {
                             eventChangeDtoMapper.toDto(
                                     event,
                                     oldStatus,
-                                    event.getOwner().getId(),
                                     getEventParticipants(event.getId())
                             )
                     );

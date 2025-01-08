@@ -6,7 +6,7 @@ public record EventChangeDto(
 
         Long eventId,
         Long modifiedBy,
-        Long owner,
+        Long ownerId,
         FieldChangeString name,
         FieldChangeInteger maxPlaces,
         FieldChangeDateTime date,

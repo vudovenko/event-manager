@@ -29,12 +29,11 @@ public class EventChangeDtoMapper {
     public EventChangeDto toDto(
             Event eventWithNewStatus,
             EventStatus oldStatus,
-            Long modifiedBy,
             List<Long> participants
     ) {
         return new EventChangeDto(
                 eventWithNewStatus.getId(),
-                modifiedBy,
+                null,
                 eventWithNewStatus.getOwner().getId(),
                 new FieldChangeString(eventWithNewStatus.getName(), eventWithNewStatus.getName()),
                 new FieldChangeInteger(eventWithNewStatus.getMaxPlaces(), eventWithNewStatus.getMaxPlaces()),
