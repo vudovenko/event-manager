@@ -79,9 +79,18 @@ public class EventServiceImpl implements EventService {
         eventValidationService.checkIfEventHasAlreadyBeenCanceled(event);
         eventValidationService.checkIfEventHasStarted(event);
 
+        EventStatus oldStatus = event.getStatus();
         event.setStatus(EventStatus.CANCELLED);
 
         eventRepository.save(eventEntityMapper.toEntity(event));
+
+        eventChangeSender.sendEvent(
+                eventChangeDtoMapper.toDto(
+                        event,
+                        oldStatus,
+                        getEventParticipants(event.getId())
+                )
+        );
     }
 
     @Transactional
