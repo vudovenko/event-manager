@@ -27,6 +27,7 @@ public class JwtAuthenticationService {
 
         return jwtTokenManager.generateToken(
                 userCredentials.login(),
+                user.getId(),
                 user.getRole()
         );
     }

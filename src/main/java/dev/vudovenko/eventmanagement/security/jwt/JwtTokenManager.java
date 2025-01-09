@@ -34,6 +34,18 @@ public class JwtTokenManager {
                 .compact();
     }
 
+    public String generateToken(String login, Long userId, UserRole role) {
+        return Jwts
+                .builder()
+                .subject(login)
+                .signWith(key)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .claim("userId", userId)
+                .claim("role", role.name())
+                .compact();
+    }
+
     public String getLoginFromToken(String jwt) {
         return Jwts.parser()
                 .verifyWith(key)
