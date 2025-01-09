@@ -15,13 +15,13 @@ public class EventChangeDtoMapper {
                 oldEvent.getId(),
                 modifiedBy,
                 newEvent.getOwner().getId(),
-                new FieldChangeString(oldEvent.getName(), newEvent.getName()),
-                new FieldChangeInteger(oldEvent.getMaxPlaces(), newEvent.getMaxPlaces()),
-                new FieldChangeDateTime(oldEvent.getDate(), newEvent.getDate()),
-                new FieldChangeInteger(oldEvent.getCost(), newEvent.getCost()),
-                new FieldChangeInteger(oldEvent.getDuration(), newEvent.getDuration()),
-                new FieldChangeLong(oldEvent.getLocation().getId(), newEvent.getLocation().getId()),
-                new FieldChangeStatus(oldEvent.getStatus(), newEvent.getStatus()),
+                new FieldChange<>(oldEvent.getName(), newEvent.getName()),
+                new FieldChange<>(oldEvent.getMaxPlaces(), newEvent.getMaxPlaces()),
+                new FieldChange<>(oldEvent.getDate(), newEvent.getDate()),
+                new FieldChange<>(oldEvent.getCost(), newEvent.getCost()),
+                new FieldChange<>(oldEvent.getDuration(), newEvent.getDuration()),
+                new FieldChange<>(oldEvent.getLocation().getId(), newEvent.getLocation().getId()),
+                new FieldChange<>(oldEvent.getStatus(), newEvent.getStatus()),
                 participants
         );
     }
@@ -35,13 +35,13 @@ public class EventChangeDtoMapper {
                 eventWithNewStatus.getId(),
                 null,
                 eventWithNewStatus.getOwner().getId(),
-                new FieldChangeString(eventWithNewStatus.getName(), eventWithNewStatus.getName()),
-                new FieldChangeInteger(eventWithNewStatus.getMaxPlaces(), eventWithNewStatus.getMaxPlaces()),
-                new FieldChangeDateTime(eventWithNewStatus.getDate(), eventWithNewStatus.getDate()),
-                new FieldChangeInteger(eventWithNewStatus.getCost(), eventWithNewStatus.getCost()),
-                new FieldChangeInteger(eventWithNewStatus.getDuration(), eventWithNewStatus.getDuration()),
-                new FieldChangeLong(eventWithNewStatus.getLocation().getId(), eventWithNewStatus.getLocation().getId()),
-                new FieldChangeStatus(oldStatus, eventWithNewStatus.getStatus()),
+                new FieldChange<>(eventWithNewStatus.getName(), eventWithNewStatus.getName()),
+                new FieldChange<>(eventWithNewStatus.getMaxPlaces(), eventWithNewStatus.getMaxPlaces()),
+                new FieldChange<>(eventWithNewStatus.getDate(), eventWithNewStatus.getDate()),
+                new FieldChange<>(eventWithNewStatus.getCost(), eventWithNewStatus.getCost()),
+                new FieldChange<>(eventWithNewStatus.getDuration(), eventWithNewStatus.getDuration()),
+                new FieldChange<>(eventWithNewStatus.getLocation().getId(), eventWithNewStatus.getLocation().getId()),
+                new FieldChange<>(oldStatus, eventWithNewStatus.getStatus()),
                 participants
         );
     }
