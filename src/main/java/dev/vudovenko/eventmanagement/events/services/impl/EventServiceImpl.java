@@ -87,6 +87,7 @@ public class EventServiceImpl implements EventService {
         eventChangeSender.sendEvent(
                 eventChangeDtoMapper.toDto(
                         event,
+                        authenticationService.getCurrentAuthenticatedUserOrThrow().getId(),
                         oldStatus,
                         getEventParticipants(event.getId())
                 )

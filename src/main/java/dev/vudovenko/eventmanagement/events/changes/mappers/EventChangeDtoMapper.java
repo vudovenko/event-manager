@@ -45,4 +45,25 @@ public class EventChangeDtoMapper {
                 participants
         );
     }
+
+    public EventChangeDto toDto(
+            Event eventWithNewStatus,
+            Long modifiedBy,
+            EventStatus oldStatus,
+            List<Long> participants
+    ) {
+        return new EventChangeDto(
+                eventWithNewStatus.getId(),
+                modifiedBy,
+                eventWithNewStatus.getOwner().getId(),
+                new FieldChange<>(eventWithNewStatus.getName(), eventWithNewStatus.getName()),
+                new FieldChange<>(eventWithNewStatus.getMaxPlaces(), eventWithNewStatus.getMaxPlaces()),
+                new FieldChange<>(eventWithNewStatus.getDate(), eventWithNewStatus.getDate()),
+                new FieldChange<>(eventWithNewStatus.getCost(), eventWithNewStatus.getCost()),
+                new FieldChange<>(eventWithNewStatus.getDuration(), eventWithNewStatus.getDuration()),
+                new FieldChange<>(eventWithNewStatus.getLocation().getId(), eventWithNewStatus.getLocation().getId()),
+                new FieldChange<>(oldStatus, eventWithNewStatus.getStatus()),
+                participants
+        );
+    }
 }
