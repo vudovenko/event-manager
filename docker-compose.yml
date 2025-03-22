@@ -14,8 +14,6 @@ services:
         condition: service_started
       kafka:
         condition: service_started
-      zookeeper:
-        condition: service_started
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://manager-pg-server:5432/postgres
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -52,8 +50,6 @@ services:
         condition: service_started
       kafka:
         condition: service_started
-      zookeeper:
-        condition: service_started
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://notificator-pg-server:5432/postgres
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -77,16 +73,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-    ports:
-      - "2179:2181"
-    networks:
-        - general-network
-
   kafka:
+    container_name: kafka
     image: confluentinc/cp-kafka:7.5.0
     depends_on:
       - zookeeper
@@ -99,6 +87,16 @@ services:
       - "9092:9092"
     networks:
       - general-network
+
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2179:2181"
+    networks:
+        - general-network
 
 networks:
   general-network:
