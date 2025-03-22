@@ -1,12 +1,90 @@
 version: '3.7'
 
 services:
+  manager-app:
+    container_name: event-manager
+    build: ./
+    image: event-manager:latest
+    networks:
+      - general-network
+    ports:
+      - "8080:8080"
+    depends_on:
+      manager-pg-server:
+        condition: service_started
+      kafka:
+        condition: service_started
+      zookeeper:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://manager-pg-server:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_PRODUCER_KEY_SERIALIZER=org.apache.kafka.common.serialization.LongSerializer
+      - SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER=org.springframework.kafka.support.serializer.JsonSerializer
+
+  manager-pg-server:
+    container_name: event-manager-pg
+    image: postgres:latest
+    networks:
+      - general-network
+    ports:
+      - "5432:5432"
+    volumes:
+      - event-manager-vol:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  notificator-app:
+    container_name: event-notificator
+    build: .\..\event-notificator\.
+    image: event-notificator:latest
+    networks:
+      - general-network
+    ports:
+      - "8081:8081"
+    depends_on:
+      notificator-pg-server:
+        condition: service_started
+      kafka:
+        condition: service_started
+      zookeeper:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://notificator-pg-server:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_CONSUMER_GROUP_ID=notificator-group
+      - SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER_CLASS=org.apache.kafka.common.serialization.LongDeserializer
+
+  notificator-pg-server:
+    container_name: event-notificator-pg
+    image: postgres:latest
+    networks:
+      - general-network
+    ports:
+      - "5433:5432"
+    volumes:
+      - event-notificator-vol:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
     ports:
-      - "2181:2181"
+      - "2179:2181"
+    networks:
+        - general-network
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -15,7 +93,17 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
+    networks:
+      - general-network
+
+networks:
+  general-network:
+    driver: bridge
+
+volumes:
+  event-manager-vol:
+  event-notificator-vol:
