@@ -3,8 +3,8 @@ version: '3.7'
 services:
   manager-app:
     container_name: event-manager
-    build: ./
-    image: event-manager:latest
+#    build: ./
+    image: vudovenko/event-manager:1.0.0
     networks:
       - general-network
     ports:
@@ -39,8 +39,8 @@ services:
 
   notificator-app:
     container_name: event-notificator
-    build: .\..\event-notificator\.
-    image: event-notificator:latest
+#    build: .\..\event-notificator\.
+    image: vudovenko/event-notificator:1.0.0
     networks:
       - general-network
     ports:
